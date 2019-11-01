@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Passwd Manager</string>
+    <string name="copy_button">Copy</string>
+    <string name="edit_button">Edit</string>
+    <string name="password_str">Password</string>
+    <string name="login_str">Login</string>
+    <string name="username_str">Username</string>
+</resources>
