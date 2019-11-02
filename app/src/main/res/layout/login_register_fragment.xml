@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content" android:layout_height="wrap_content"
+    android:layout_gravity="center">
+        <EditText
+            android:id="@+id/login_reg"
+            android:hint="@string/login_str"
+            android:layout_width="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:layout_height="wrap_content"/>
+        <EditText
+            android:layout_below="@+id/login_reg"
+            android:id="@+id/password_reg"
+            android:hint="@string/password_str"
+            android:ems="10"
+            android:inputType="textPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/reg_button"
+            android:layout_below="@+id/password_reg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/register"
+            android:layout_centerHorizontal="true" />
+</RelativeLayout>
