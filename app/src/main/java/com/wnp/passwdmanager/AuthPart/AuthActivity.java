@@ -25,10 +25,7 @@ public class AuthActivity extends AppCompatActivity {
         if( body.has(getResources().getString(R.string.status)) ) {
             try {
                 if( body.getString(getResources().getString(R.string.status)).equals("logged") ){
-                    AuthActivity.getInstance().getPreferences(Context.MODE_PRIVATE).edit().putString("status", "logged")
-                            .putString(getResources().getString(R.string.pin), "admin")
-                            .apply();
-                    switchActivity();
+                    navigator.navigateToFragment(new DefaultSettingsFragment(), false);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
