@@ -9,20 +9,18 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okhttp3.internal.http2.Header;
 
 public class NetworkManager {
     public static final MediaType POSTPARAM = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    //public static final String SERVER = "https://1611b.l.time4vps.cloud";
-    public static final String SERVER = "http://192.168.31.114";
+    public static final String SERVER = "https://1611b.l.time4vps.cloud";
+    //public static final String SERVER = "http://192.168.31.114";
     private static final String TAG = "NETWORK";
     private static final NetworkManager INSTANCE = new NetworkManager();
     private final OkHttpClient client = new OkHttpClient();
@@ -83,7 +81,7 @@ public class NetworkManager {
         mListener = listener;
     }
 
-    void clear() {
+    public void clear() {
         mListener = null;
     }
 

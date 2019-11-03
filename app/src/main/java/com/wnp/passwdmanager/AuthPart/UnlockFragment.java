@@ -1,7 +1,6 @@
-package com.wnp.passwdmanager.AuthFragments;
+package com.wnp.passwdmanager.AuthPart;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,8 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.wnp.passwdmanager.AuthActivity;
-import com.wnp.passwdmanager.MainActivity;
 import com.wnp.passwdmanager.R;
 
 public class UnlockFragment extends Fragment {

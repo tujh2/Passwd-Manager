@@ -1,6 +1,5 @@
-package com.wnp.passwdmanager.AuthFragments;
+package com.wnp.passwdmanager.AuthPart;
 
-import android.icu.text.RelativeDateTimeFormatter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.wnp.passwdmanager.AuthActivity;
 import com.wnp.passwdmanager.FragmentNavigator;
 import com.wnp.passwdmanager.NetworkManager;
 import com.wnp.passwdmanager.R;
@@ -20,9 +18,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class LoginFragment extends Fragment {
-    private JSONObject userInfo = new JSONObject();
+    private final JSONObject userInfo = new JSONObject();
     private FragmentNavigator navigator;
-    private NetworkManager.OnRequestCompleteListener listener = AuthActivity.getInstance().listener;
+    private final NetworkManager.OnRequestCompleteListener listener = AuthActivity.getInstance().listener;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -41,9 +40,7 @@ public class LoginFragment extends Fragment {
             }
             NetworkManager.getInstance().post(NetworkManager.SERVER + "/auth", userInfo, listener);
         });
-        view.findViewById(R.id.reg_switch_but).setOnClickListener(v -> {
-            navigator.navigateToFragment(RegisterFragment.newInstance(), true);
-        });
+        view.findViewById(R.id.reg_switch_but).setOnClickListener(v -> navigator.navigateToFragment(RegisterFragment.newInstance(), true));
         return view;
     }
 }

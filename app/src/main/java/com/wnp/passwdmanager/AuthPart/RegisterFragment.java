@@ -1,4 +1,4 @@
-package com.wnp.passwdmanager.AuthFragments;
+package com.wnp.passwdmanager.AuthPart;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.wnp.passwdmanager.AuthActivity;
 import com.wnp.passwdmanager.NetworkManager;
 import com.wnp.passwdmanager.R;
 
@@ -18,11 +17,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class RegisterFragment extends Fragment {
-    private JSONObject userInfo = new JSONObject();
-    private NetworkManager.OnRequestCompleteListener listener = AuthActivity.getInstance().listener;
+    private final JSONObject userInfo = new JSONObject();
+    private final NetworkManager.OnRequestCompleteListener listener = AuthActivity.getInstance().listener;
     static RegisterFragment newInstance() {
-        RegisterFragment registerFragment = new RegisterFragment();
-        return registerFragment;
+        return new RegisterFragment();
     }
 
     @Nullable

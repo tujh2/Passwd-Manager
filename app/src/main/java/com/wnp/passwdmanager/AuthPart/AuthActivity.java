@@ -1,23 +1,22 @@
-package com.wnp.passwdmanager;
+package com.wnp.passwdmanager.AuthPart;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.fragment.app.ListFragment;
 
-import com.wnp.passwdmanager.AuthFragments.LoginFragment;
-import com.wnp.passwdmanager.AuthFragments.UnlockFragment;
+import com.wnp.passwdmanager.FragmentNavigator;
+import com.wnp.passwdmanager.MainActivity;
+import com.wnp.passwdmanager.NetworkManager;
+import com.wnp.passwdmanager.R;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 public class AuthActivity extends AppCompatActivity {
     private static Navigator navigator;
@@ -78,7 +77,7 @@ public class AuthActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private class Navigator implements FragmentNavigator{
+    private class Navigator implements FragmentNavigator {
         private final FragmentManager fragmentManager = getSupportFragmentManager();
 
         @Override
