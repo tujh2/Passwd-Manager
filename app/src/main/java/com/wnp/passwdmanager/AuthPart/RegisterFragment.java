@@ -4,21 +4,18 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import com.wnp.passwdmanager.NetworkManager;
+import androidx.lifecycle.ViewModelProvider;
 import com.wnp.passwdmanager.R;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 public class RegisterFragment extends Fragment {
-    private final JSONObject userInfo = new JSONObject();
-    private final NetworkManager.OnRequestCompleteListener listener = AuthActivity.getInstance().listener;
+    UserInfoViewModel regViewModel;
     static RegisterFragment newInstance() {
         return new RegisterFragment();
     }
@@ -26,18 +23,38 @@ public class RegisterFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.login_register_fragment, container, false);
+        return inflater.inflate(R.layout.login_register_fragment, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         EditText user  = view.findViewById(R.id.login_reg);
         EditText pass = view.findViewById(R.id.password_reg);
-        view.findViewById(R.id.reg_button).setOnClickListener(v -> {
-            try {
-                userInfo.put("user", user.getText().toString())
-                        .put("password", pass.getText().toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
+        Button regBtn = view.findViewById(R.id.reg_button);
+        regViewModel = new ViewModelProvider(getActivity()).get(UserInfoViewModel.class);
+        regViewModel.getProgress().observe(getViewLifecycleOwner(), userState -> {
+            switch (userState) {
+                case REG_FAILED:
+                    regBtn.setEnabled(true);
+                    Toast.makeText(getContext(), "REG FAILED", Toast.LENGTH_SHORT).show();
+                    break;
+                case REG_ERROR:
+                    regBtn.setEnabled(true);
+                    Toast.makeText(getContext(), "REG ERROR", Toast.LENGTH_SHORT).show();
+                    break;
+                case REG_IN_PROGRESS:
+                    regBtn.setEnabled(false);
+                    break;
+                case REG_SUCCESS:
+                    Toast.makeText(getContext(), "Success REG", Toast.LENGTH_SHORT).show();
+                    AuthActivity.getInstance().navigateToFragment(new DefaultSettingsFragment(), true);
+                    break;
+
+                default: regBtn.setEnabled(true); break;
             }
-            NetworkManager.getInstance().post(NetworkManager.SERVER +"/reg", userInfo, listener);
         });
-        return view;
+
+        regBtn.setOnClickListener(v -> regViewModel.registrate(user.getText().toString(), pass.getText().toString()));
     }
 }

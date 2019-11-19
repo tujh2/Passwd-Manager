@@ -4,43 +4,57 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import com.wnp.passwdmanager.FragmentNavigator;
-import com.wnp.passwdmanager.NetworkManager;
+import androidx.lifecycle.ViewModelProvider;
 import com.wnp.passwdmanager.R;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 public class LoginFragment extends Fragment {
-    private final JSONObject userInfo = new JSONObject();
-    private FragmentNavigator navigator;
-    private final NetworkManager.OnRequestCompleteListener listener = AuthActivity.getInstance().listener;
+    private UserInfoViewModel loginModel;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if(navigator == null)
-            navigator = AuthActivity.getNavigator();
-        View view =  inflater.inflate(R.layout.login_signin_fragment, container, false);
+        return inflater.inflate(R.layout.login_signin_fragment, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);loginModel = new ViewModelProvider(getActivity()).get(UserInfoViewModel.class);
         EditText user = view.findViewById(R.id.username);
         EditText pass = view.findViewById(R.id.password);
+        Button loginBtm = view.findViewById(R.id.login_button);
 
-        view.findViewById(R.id.login_button).setOnClickListener(v -> {
-            try {
-                userInfo.put("user", user.getText().toString())
-                        .put("password", pass.getText().toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
+        loginModel.getProgress().observe(getViewLifecycleOwner(), userState -> {
+            switch (userState) {
+                case LOGIN_FAILED:
+                    loginBtm.setEnabled(true);
+                    Toast.makeText(getContext(), "LOGIN FAILED", Toast.LENGTH_SHORT).show();
+                    break;
+                case LOGIN_ERROR:
+                    loginBtm.setEnabled(true);
+                    Toast.makeText(getContext(), "LOGIN ERROR", Toast.LENGTH_SHORT).show();
+                    break;
+                case LOGIN_IN_PROGRESS:
+                    loginBtm.setEnabled(false);
+                    break;
+                case LOGIN_SUCCESS:
+                    Toast.makeText(getContext(), "Success Login", Toast.LENGTH_SHORT).show();
+                    AuthActivity.getInstance().navigateToFragment(new DefaultSettingsFragment(), true);
+                    break;
+
+                default: loginBtm.setEnabled(true); break;
+
             }
-            NetworkManager.getInstance().post(NetworkManager.SERVER + "/auth", userInfo, listener);
         });
-        view.findViewById(R.id.reg_switch_but).setOnClickListener(v -> navigator.navigateToFragment(RegisterFragment.newInstance(), true));
-        return view;
+
+        view.findViewById(R.id.login_button).setOnClickListener(v -> loginModel.login(user.getText().toString(), pass.getText().toString()));
+        view.findViewById(R.id.reg_switch_but).setOnClickListener(v ->
+                AuthActivity.getInstance().navigateToFragment(RegisterFragment.newInstance(), true));
     }
 }
