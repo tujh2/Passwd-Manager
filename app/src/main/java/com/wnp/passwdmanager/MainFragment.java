@@ -58,7 +58,8 @@ public class MainFragment extends Fragment {
             PasswordsRepository.Item item = mData.get(position);
             holder.emailView.setText(item.domain);
             holder.itemView.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "username " + item.username + " pass " + item.password, Toast.LENGTH_SHORT).show();
+                MainActivity.getInstance().navigateToFragment(PasswordViewFragment.newInstance(item), true);
+                //Toast.makeText(getContext(), "username " + item.username + " pass " + item.password, Toast.LENGTH_SHORT).show();
             });
         }
 
