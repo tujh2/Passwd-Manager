@@ -39,7 +39,7 @@ public class AuthActivity extends AppCompatActivity implements FragmentNavigator
     public static AuthActivity getInstance() {
         return INSTANCE;
     }
-    
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
