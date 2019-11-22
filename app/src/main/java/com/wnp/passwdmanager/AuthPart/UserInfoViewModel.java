@@ -27,8 +27,10 @@ public class UserInfoViewModel extends AndroidViewModel  {
         LoginData regData = new LoginData(login, password);
         if(!regData.isValid()) {
             mUserState.postValue(UserState.REG_ERROR);
-        } else if(mUserState.getValue() != UserState.REG_IN_PROGRESS)
+        } else if(mUserState.getValue() != UserState.REG_IN_PROGRESS) {
             requestRegistration(regData);
+            requestLogin(regData);
+        }
     }
 
     private void requestRegistration(LoginData regData) {
@@ -101,7 +103,6 @@ public class UserInfoViewModel extends AndroidViewModel  {
 
     enum UserState {
         NONE,
-        PIN,
         LOGIN_ERROR,
         LOGIN_IN_PROGRESS,
         LOGIN_SUCCESS,

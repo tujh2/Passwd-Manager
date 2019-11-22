@@ -9,9 +9,9 @@ import retrofit2.http.POST;
 public interface RegApi {
     class UserPlain {
         public UserPlain(@NonNull String name, @NonNull String pass) {
-            user = name; password = pass;
+            username = name; password = pass;
         }
-        final String user;
+        final String username;
         final String password;
     }
     class Status {

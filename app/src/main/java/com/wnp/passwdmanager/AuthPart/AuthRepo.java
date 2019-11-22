@@ -9,7 +9,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.wnp.passwdmanager.Network.ApiRepo;
-import com.wnp.passwdmanager.Network.AuthApi;
+import com.wnp.passwdmanager.Network.LoginApi;
 import com.wnp.passwdmanager.Network.RegApi;
 import com.wnp.passwdmanager.RepoApplication;
 
@@ -55,7 +55,7 @@ public class AuthRepo {
         api.Registration(new RegApi.UserPlain(username, password)).enqueue(new Callback<RegApi.Status>() {
             @Override
             public void onResponse(@NotNull Call<RegApi.Status> call, @NotNull Response<RegApi.Status> response) {
-                Log.d("AuthRepo", "onResponse" + response.code());
+                Log.d("AuthRepo", "regonResponse" + response.code());
                 if(response.isSuccessful() && response.body() != null) {
                     Log.d("AuthRepo",  response.body().regStatus);
                     if(response.body().regStatus.equals("successfully"))
@@ -92,23 +92,20 @@ public class AuthRepo {
                   @NonNull final String username,
                   @NonNull  final String password) {
         Log.d("AuthRepo", "Started NetworkLogin");
-        AuthApi api = mApiRepo.getmAuthApi();
-        api.Auth(new AuthApi.UserPlain(username, password)).enqueue(new Callback<AuthApi.Status>() {
+        LoginApi api = mApiRepo.getmAuthApi();
+        api.Auth(new LoginApi.UserPlain(username, password)).enqueue(new Callback<LoginApi.Response>() {
             @Override
-            public void onResponse(@NotNull Call<AuthApi.Status> call, @NotNull Response<AuthApi.Status> response) {
+            public void onResponse(@NotNull Call<LoginApi.Response> call, @NotNull Response<LoginApi.Response> response) {
                 Log.d("AuthRepo", "onResponse" + response.code());
-                if(response.isSuccessful() && response.body() != null) {
-                    Log.d("AuthRepo",  response.body().status);
-                    if(response.body().status.equals("logged"))
-                        progress.postValue(AuthProgress.SUCCESS);
-                    else
-                        progress.postValue(AuthProgress.FAILED);
+                if(response.body() != null && response.code() == 200) {
+                    progress.postValue(AuthProgress.SUCCESS);
+                    Log.d("AuthRepo", response.body().token);
                 } else
                     progress.postValue(AuthProgress.FAILED);
             }
 
             @Override
-            public void onFailure(@NotNull Call<AuthApi.Status> call, @NotNull Throwable t) {
+            public void onFailure(@NotNull Call<LoginApi.Response> call, @NotNull Throwable t) {
                 Log.d("AuthRepo", "onFailure" + t.toString());
                 progress.postValue(AuthProgress.FAILED);
             }

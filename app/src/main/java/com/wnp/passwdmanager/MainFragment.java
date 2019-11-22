@@ -31,6 +31,7 @@ public class MainFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         RecyclerView recyclerView = view.findViewById(R.id.passwordList);
+
         listRepo = new PasswordsRepository(getContext().getFilesDir().getAbsolutePath() + "/sampleDb.db", getContext());
         mAdapter = new PasswordListDataAdapter(listRepo.getData());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
