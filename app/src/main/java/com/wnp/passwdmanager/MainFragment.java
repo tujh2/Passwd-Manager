@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,6 +20,8 @@ import java.util.List;
 public class MainFragment extends Fragment {
     private PasswordListDataAdapter mAdapter;
     private PasswordsRepository listRepo;
+    private DatabaseViewModel dbViewModel;
+
 
     @Nullable
     @Override
@@ -29,13 +32,23 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         RecyclerView recyclerView = view.findViewById(R.id.passwordList);
+        listRepo = new PasswordsRepository(getContext());
 
-        listRepo = new PasswordsRepository(getContext().getFilesDir().getAbsolutePath() + "/sampleDb.db", getContext());
-        mAdapter = new PasswordListDataAdapter(listRepo.getData());
+        dbViewModel = new ViewModelProvider(getActivity()).get(DatabaseViewModel.class);
+        dbViewModel.requestDatabase();
+        dbViewModel.getProcess().observe(getViewLifecycleOwner(), databaseState -> {
+            switch (databaseState) {
+                case SUCCESS:
+                    mAdapter = new PasswordListDataAdapter(listRepo.getData());
+                    recyclerView.setAdapter(mAdapter);
+                    Log.d("MainFragment", "SUCCESS");
+                    break;
+                case IN_PROGRESS:
+                    break;
+            }
+        });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
-        recyclerView.setAdapter(mAdapter);
     }
 
     class PasswordListDataAdapter extends RecyclerView.Adapter<PasswordListViewHolder> {

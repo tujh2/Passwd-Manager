@@ -99,7 +99,7 @@ public class AuthRepo {
                 Log.d("AuthRepo", "onResponse" + response.code());
                 if(response.body() != null && response.code() == 200) {
                     progress.postValue(AuthProgress.SUCCESS);
-                    Log.d("AuthRepo", response.body().token);
+                    RepoApplication.setToken(response.body().token);
                 } else
                     progress.postValue(AuthProgress.FAILED);
             }

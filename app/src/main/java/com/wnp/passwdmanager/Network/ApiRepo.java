@@ -9,7 +9,7 @@ public class ApiRepo {
     private final OkHttpClient mOkHttpClient;
     private final LoginApi mAuthApi;
     private final RegApi mRegApi;
-    private final GetDatabaseApi mGetDatabaseApi;
+    private final DatabaseApi mDatabaseApi;
 
     public ApiRepo() {
         mOkHttpClient = new OkHttpClient()
@@ -25,10 +25,10 @@ public class ApiRepo {
                 .build();
         mAuthApi = retrofit.create(LoginApi.class);
         mRegApi = retrofit.create(RegApi.class);
-        mGetDatabaseApi = retrofit.create(GetDatabaseApi.class);
+        mDatabaseApi = retrofit.create(DatabaseApi.class);
     }
 
     public LoginApi getmAuthApi() { return mAuthApi; }
     public RegApi getmRegApi() { return mRegApi; }
-    public GetDatabaseApi getDatabaseApi() { return mGetDatabaseApi; }
+    public DatabaseApi getDatabaseApi() { return mDatabaseApi; }
 }

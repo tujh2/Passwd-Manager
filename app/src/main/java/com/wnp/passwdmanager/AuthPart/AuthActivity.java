@@ -22,7 +22,7 @@ public class AuthActivity extends AppCompatActivity implements FragmentNavigator
         setContentView(R.layout.activity_auth);
         INSTANCE = this;
 
-        SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
         if( sharedPreferences.getString(getResources().getString(R.string.status), "unauth").equals("logged")) {
             navigateToFragment(new UnlockFragment(), false);
         } else if(savedInstanceState == null)

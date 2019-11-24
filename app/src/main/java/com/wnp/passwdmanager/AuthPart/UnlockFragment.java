@@ -21,7 +21,8 @@ public class UnlockFragment extends Fragment {
         View view = inflater.inflate(R.layout.login_unlcok_fragment, container, false);
         EditText pass = view.findViewById(R.id.unlock_pass);
         view.findViewById(R.id.unlock_button).setOnClickListener(v -> {
-            SharedPreferences sharedPreferences = AuthActivity.getInstance().getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = getContext().getSharedPreferences("settings", Context.MODE_PRIVATE);
+
             if(sharedPreferences.getString(getResources().getString(R.string.status), null) != null) {
                 if(sharedPreferences.getString(getResources().getString(R.string.pin), "").equals(pass.getText().toString()) ) {
                     AuthActivity.getInstance().switchActivity();

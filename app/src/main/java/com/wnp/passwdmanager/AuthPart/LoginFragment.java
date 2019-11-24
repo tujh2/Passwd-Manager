@@ -28,7 +28,8 @@ public class LoginFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         accountManager = AccountManager.get(getContext());
-        super.onViewCreated(view, savedInstanceState);loginModel = new ViewModelProvider(getActivity()).get(UserInfoViewModel.class);
+        super.onViewCreated(view, savedInstanceState);
+        loginModel = new ViewModelProvider(getActivity()).get(UserInfoViewModel.class);
         EditText user = view.findViewById(R.id.username);
         EditText pass = view.findViewById(R.id.password);
         Button loginBtm = view.findViewById(R.id.login_button);
