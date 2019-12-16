@@ -12,20 +12,19 @@ import androidx.fragment.app.FragmentTransaction;
 import com.wnp.passwdmanager.FragmentNavigator;
 import com.wnp.passwdmanager.MainActivity;
 import com.wnp.passwdmanager.R;
+import com.wnp.passwdmanager.RepoApplication;
 
 public class AuthActivity extends AppCompatActivity implements FragmentNavigator{
-    private static AuthActivity INSTANCE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
-        INSTANCE = this;
 
         SharedPreferences sharedPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
-        if( sharedPreferences.getString(getResources().getString(R.string.status), "unauth").equals("logged")) {
+        if(!RepoApplication.getToken().equals("") && !RepoApplication.getPin().equals(""))
             navigateToFragment(new UnlockFragment(), false);
-        } else if(savedInstanceState == null)
+        else if(savedInstanceState == null)
             navigateToFragment(new LoginFragment(), false);
     }
 
@@ -34,10 +33,6 @@ public class AuthActivity extends AppCompatActivity implements FragmentNavigator
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         startActivity(intent);
         this.finish();
-    }
-
-    public static AuthActivity getInstance() {
-        return INSTANCE;
     }
 
     @Override

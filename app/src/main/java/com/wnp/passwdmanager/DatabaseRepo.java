@@ -31,7 +31,7 @@ public class DatabaseRepo {
     }
 
     static DatabaseRepo getInstance(Context context) {
-        dbName = context.getFilesDir().getAbsolutePath() + "/userPasswords.db";
+        dbName = context.getDatabasePath("userPasswords.db").getAbsolutePath();
         return RepoApplication.from(context).getDatabaseRepo();
     }
 

@@ -48,7 +48,7 @@ public class RegisterFragment extends Fragment {
                     break;
                 case REG_SUCCESS:
                     Toast.makeText(getContext(), "Success REG", Toast.LENGTH_SHORT).show();
-                    AuthActivity.getInstance().navigateToFragment(new DefaultSettingsFragment(), true);
+                    ((AuthActivity)getActivity()).navigateToFragment(new DefaultSettingsFragment(), true);
                     break;
 
                 default: regBtn.setEnabled(true); break;

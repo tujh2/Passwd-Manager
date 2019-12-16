@@ -49,7 +49,7 @@ public class LoginFragment extends Fragment {
                     break;
                 case LOGIN_SUCCESS:
                     Toast.makeText(getContext(), "Success Login", Toast.LENGTH_SHORT).show();
-                    AuthActivity.getInstance().navigateToFragment(new DefaultSettingsFragment(), true);
+                    ((AuthActivity)getActivity()).navigateToFragment(new DefaultSettingsFragment(), true);
                     break;
 
                 default: loginBtm.setEnabled(true); break;
@@ -59,6 +59,6 @@ public class LoginFragment extends Fragment {
 
         view.findViewById(R.id.login_button).setOnClickListener(v -> loginModel.login(user.getText().toString(), pass.getText().toString()));
         view.findViewById(R.id.reg_switch_but).setOnClickListener(v ->
-                AuthActivity.getInstance().navigateToFragment(RegisterFragment.newInstance(), true));
+                ((AuthActivity)getActivity()).navigateToFragment(RegisterFragment.newInstance(), true));
     }
 }

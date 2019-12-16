@@ -1,7 +1,5 @@
 package com.wnp.passwdmanager.AuthPart;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.wnp.passwdmanager.R;
+import com.wnp.passwdmanager.RepoApplication;
 
 public class UnlockFragment extends Fragment {
     @Nullable
@@ -21,12 +20,8 @@ public class UnlockFragment extends Fragment {
         View view = inflater.inflate(R.layout.login_unlcok_fragment, container, false);
         EditText pass = view.findViewById(R.id.unlock_pass);
         view.findViewById(R.id.unlock_button).setOnClickListener(v -> {
-            SharedPreferences sharedPreferences = getContext().getSharedPreferences("settings", Context.MODE_PRIVATE);
-
-            if(sharedPreferences.getString(getResources().getString(R.string.status), null) != null) {
-                if(sharedPreferences.getString(getResources().getString(R.string.pin), "").equals(pass.getText().toString()) ) {
-                    AuthActivity.getInstance().switchActivity();
-                }
+            if(RepoApplication.getPin().equals(pass.getText().toString()) ) {
+                ((AuthActivity)getActivity()).switchActivity();
             }
         });
         return view;

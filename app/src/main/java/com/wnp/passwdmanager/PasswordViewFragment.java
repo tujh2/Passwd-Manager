@@ -11,15 +11,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class PasswordViewFragment extends Fragment {
-    private PasswordsRepository.Item password;
+import com.wnp.passwdmanager.Database.DatabaseManager;
 
-    static PasswordViewFragment newInstance(PasswordsRepository.Item passwordItem) {
+public class PasswordViewFragment extends Fragment {
+    private DatabaseManager.Item password;
+
+    static PasswordViewFragment newInstance(DatabaseManager.Item passwordItem) {
         PasswordViewFragment fragment = new PasswordViewFragment();
         fragment.setPassword(passwordItem);
         return fragment;
     }
-    void setPassword(PasswordsRepository.Item pass) {
+    void setPassword(DatabaseManager.Item pass) {
         password = pass;
     }
     @Nullable

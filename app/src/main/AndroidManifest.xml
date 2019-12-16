@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.wnp.passwdmanager">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
 
     <application
         android:name=".RepoApplication"
@@ -21,6 +25,14 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity"/>
+        <service android:name=".Account.AuthenticatorService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accounts.WnpAuthenticator"/>
+            </intent-filter>
+
+        </service>
+
     </application>
 
 </manifest>
