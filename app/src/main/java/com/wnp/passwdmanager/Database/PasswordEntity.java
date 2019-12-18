@@ -8,4 +8,27 @@ public class PasswordEntity {
     @PrimaryKey(autoGenerate = true)
     int ID;
     String domain_name, URL, username, password;
+
+    public PasswordEntity(String domain_name, String URL, String username, String password) {
+        this.domain_name = domain_name;
+        this.URL = URL;
+        this.username = username;
+        this.password = password;
+    }
+
+    public String getDomain_name() {
+        return domain_name;
+    }
+
+    public String getURL() {
+        return URL;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
 }

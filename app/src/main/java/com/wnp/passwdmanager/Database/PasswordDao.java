@@ -1,9 +1,11 @@
 package com.wnp.passwdmanager.Database;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.List;
 
@@ -17,8 +19,12 @@ public interface PasswordDao {
     void insert(PasswordEntity entity);
 
     @Query("SELECT * FROM passwordList")
-    List<PasswordEntity> getAllEntities();
+    LiveData<List<PasswordEntity>> getAllEntities();
+
+    @Update
+    void update(PasswordEntity entity);
 
     @Delete
     void delete(PasswordEntity entity);
+
 }

@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase;
 
 
 
-@Database(entities = {PasswordEntity.class}, version = 1)
+@Database(entities = {PasswordEntity.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract PasswordDao getPasswordDao();
     private static AppDatabase instance;

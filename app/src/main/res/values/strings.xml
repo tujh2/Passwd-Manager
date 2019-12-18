@@ -7,8 +7,10 @@
     <string name="username_str">Username</string>
     <string name="unlock">UNLOCK</string>
     <string name="register">REGISTER</string>
-    <string name="pin">pin</string>
-    <string name="status">status</string>
     <string name="default_pin">Default pin</string>
     <string name="finish_setup">Finish setup</string>
+    <string name="domain">Domain:</string>
+    <string name="username">Username:</string>
+    <string name="url">URL:</string>
+    <string name="password">Password:</string>
 </resources>

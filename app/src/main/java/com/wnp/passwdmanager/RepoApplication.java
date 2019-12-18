@@ -6,13 +6,11 @@ import android.content.SharedPreferences;
 
 import com.wnp.passwdmanager.AuthPart.AuthRepo;
 import com.wnp.passwdmanager.Network.ApiRepo;
-import com.wnp.passwdmanager.Network.DatabaseApi;
 
 public class RepoApplication extends Application {
     private ApiRepo mApiRepo;
     private AuthRepo mAuthRepo;
-    private PasswordsRepository passwordsRepository;
-    private DatabaseRepo mDatabaseRepo;
+    //private DatabaseRepo mDatabaseRepo;
     private static RepoApplication INSTANCE;
     private static SharedPreferences applicationSettings;
 
@@ -21,14 +19,14 @@ public class RepoApplication extends Application {
         super.onCreate();
         mApiRepo = new ApiRepo();
         mAuthRepo = new AuthRepo(mApiRepo);
-        mDatabaseRepo = new DatabaseRepo(mApiRepo);
+        //mDatabaseRepo = new DatabaseRepo(mApiRepo);
         INSTANCE = this;
         applicationSettings = getApplicationContext().getSharedPreferences("settings", Context.MODE_PRIVATE);
     }
 
     public AuthRepo getmAuthRepo() { return mAuthRepo; }
     public ApiRepo getmApi() { return mApiRepo; }
-    public DatabaseRepo getDatabaseRepo() { return mDatabaseRepo; }
+    //public DatabaseRepo getDatabaseRepo() { return mDatabaseRepo; }
 
     public static String getToken() {
         return applicationSettings

@@ -9,17 +9,16 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.room.Database;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.wnp.passwdmanager.Database.DatabaseManager;
+import com.wnp.passwdmanager.Database.PasswordsRepository;
+import com.wnp.passwdmanager.Database.PasswordEntity;
 
 public class EditFragment extends Fragment {
-    private PasswordsRepository passRepo;
+    private PasswordsViewModel passwordsViewModel;
 
-    static EditFragment newInstance(PasswordsRepository passwordsRepository) {
-        EditFragment fragment = new EditFragment();
-        fragment.passRepo = passwordsRepository;
-        return fragment;
+    static EditFragment newInstance() {
+        return new EditFragment();
     }
 
     @Nullable
@@ -31,20 +30,20 @@ public class EditFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        passwordsViewModel = new ViewModelProvider(getActivity()).get(PasswordsViewModel.class);
+
         EditText domain = view.findViewById(R.id.domain_edit);
         EditText url = view.findViewById(R.id.url_edit);
         EditText username = view.findViewById(R.id.username_edit);
         EditText password = view.findViewById(R.id.password_edit);
 
         view.findViewById(R.id.save_button).setOnClickListener( v -> {
-            DatabaseManager.Item  item = new DatabaseManager.Item();
-            item.domain = domain.getText().toString();
-            item.url = url.getText().toString();
-            item.username = username.getText().toString();
-            item.password = password.getText().toString();
-            DatabaseManager.getInstance(getContext()).insert(item);
-            //passRepo.addItem(item);
-            super.onDestroy();
+            PasswordEntity item = new PasswordEntity(domain.getText().toString(),
+                    url.getText().toString(),
+                    username.getText().toString(),
+                    password.getText().toString());
+            passwordsViewModel.insert(item);
+            getActivity().getSupportFragmentManager().popBackStack();
         });
 
     }

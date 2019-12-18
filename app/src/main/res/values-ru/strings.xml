@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Passwd Manager</string>
+    <string name="copy_button">Копировать</string>
+    <string name="edit_button">Редактировать</string>
+    <string name="password_str">Пароль</string>
+    <string name="login_str">Логин</string>
+    <string name="username_str">Имя пользователя</string>
+    <string name="unlock">РАЗБЛОКИРОВАТЬ</string>
+    <string name="register">РЕГИСТРАЦИЯ</string>
+    <string name="default_pin">Пин-код по-умолчанию</string>
+    <string name="finish_setup">Закончить настройку</string>
+    <string name="domain">Домен:</string>
+    <string name="url">URL</string>
+    <string name="username">Имя пользователя:</string>
+    <string name="password">Пароль:</string>
+</resources>
