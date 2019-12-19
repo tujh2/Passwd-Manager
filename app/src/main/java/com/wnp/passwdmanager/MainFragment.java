@@ -1,7 +1,18 @@
 package com.wnp.passwdmanager;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
+import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -33,7 +44,29 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.main_fragment, container, false);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.exit_option:
+                getActivity().finishAndRemoveTask();
+                return true;
+            case R.id.settings_option:
+                //TODO:
+                return false;
+                default:
+                    break;
+        }
+        return false;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.main_fragment_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -84,11 +117,26 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         @Override
         public void onBindViewHolder(@NonNull PasswordListViewHolder holder, int position) {
             PasswordEntity item = mData.get(position);
-            holder.emailView.setText(item.getDomain_name());
+            holder.urlView.setText(item.getURL());
+            holder.domainView.setText(item.getDomain_name());
             holder.itemView.setOnClickListener(v -> {
                 MainActivity activity = (MainActivity)getActivity();
                 if( activity != null) {
                     activity.navigateToFragment(PasswordViewFragment.newInstance(item), true);
+                }
+            });
+            holder.itemView.findViewById(R.id.copy_but).setOnClickListener(v -> {
+                Animator scale = ObjectAnimator.ofPropertyValuesHolder(v,
+                        PropertyValuesHolder.ofFloat(View.SCALE_X, 1, 1.5f, 1),
+                        PropertyValuesHolder.ofFloat(View.SCALE_Y, 1, 1.5f, 1));
+                scale.setDuration(1000);
+                scale.start();
+                ClipData clipData = ClipData.newPlainText(null, item.getPassword());
+                if(getActivity() != null) {
+                    ClipboardManager clipboardManager = (ClipboardManager) getActivity()
+                            .getSystemService(Context.CLIPBOARD_SERVICE);
+                    if(clipboardManager != null)
+                        clipboardManager.setPrimaryClip(clipData);
                 }
             });
         }
@@ -105,13 +153,13 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     }
 
     class PasswordListViewHolder extends RecyclerView.ViewHolder {
-        private final TextView emailView;
+        private final TextView urlView;
+        private final TextView domainView;
 
         PasswordListViewHolder(@NonNull View itemView) {
             super(itemView);
-            emailView = itemView.findViewById(R.id.email_list_item);
-            itemView.findViewById(R.id.copy_but).setOnClickListener(v -> {
-            });
+            urlView = itemView.findViewById(R.id.url_list_item);
+            domainView = itemView.findViewById(R.id.domain_list_item);
         }
     }
 

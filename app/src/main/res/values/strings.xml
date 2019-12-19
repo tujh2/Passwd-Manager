@@ -13,4 +13,7 @@
     <string name="username">Username:</string>
     <string name="url">URL:</string>
     <string name="password">Password:</string>
+    <string name="delete_record">Delete record</string>
+    <string name="exit">Exit</string>
+    <string name="settings">Settings</string>
 </resources>

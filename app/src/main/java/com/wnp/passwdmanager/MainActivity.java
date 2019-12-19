@@ -4,11 +4,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Bundle;
 
-public class MainActivity extends AppCompatActivity implements FragmentNavigator, SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends AppCompatActivity implements FragmentNavigator {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,10 +23,5 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
         if (backStack)
             fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-    }
-
-    @Override
-    public void onRefresh() {
-
     }
 }

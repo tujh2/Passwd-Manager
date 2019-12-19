@@ -2,6 +2,8 @@ package com.wnp.passwdmanager;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -32,11 +34,22 @@ public class PasswordViewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        getActivity().setTitle(password.getDomain_name());
         TextView tmp = view.findViewById(R.id.username_view);
         tmp.setText(password.getUsername());
         tmp = view.findViewById(R.id.url_view);
         tmp.setText(password.getURL());
         tmp = view.findViewById(R.id.password_view);
         tmp.setText(password.getPassword());
+
+        view.findViewById(R.id.edit_button).setOnClickListener(v -> {
+            ((MainActivity)getActivity()).navigateToFragment(EditFragment.newInstance(password), true);
+        });
+    }
+
+    @Override
+    public void onDestroyView() {
+        getActivity().setTitle(getResources().getString(R.string.app_name));
+        super.onDestroyView();
     }
 }

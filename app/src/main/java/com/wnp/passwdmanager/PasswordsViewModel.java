@@ -28,4 +28,12 @@ public class PasswordsViewModel extends AndroidViewModel {
     void insert(PasswordEntity passwordEntity) {
         passwordsRepository.insert(passwordEntity);
     }
+
+    void delete(PasswordEntity passwordEntity) {
+        passwordsRepository.delete(passwordEntity);
+    }
+
+    void update(PasswordEntity passwordEntity) {
+        passwordsRepository.update(passwordEntity);
+    }
 }

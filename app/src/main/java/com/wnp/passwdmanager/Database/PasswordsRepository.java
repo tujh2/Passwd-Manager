@@ -32,6 +32,17 @@ public class PasswordsRepository {
             passwordDao.insert(passwordEntity);
         });
     }
+    public void update(PasswordEntity passwordEntity) {
+        executor.execute(() -> {
+            passwordDao.update(passwordEntity);
+        });
+    }
+
+    public void delete(PasswordEntity passwordEntity) {
+        executor.execute(() -> {
+            passwordDao.delete(passwordEntity);
+        });
+    }
 
     public LiveData<List<PasswordEntity>> readAll() {
             return allPasswords;

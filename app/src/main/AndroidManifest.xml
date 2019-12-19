@@ -25,14 +25,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity"/>
-        <service android:name=".Account.AuthenticatorService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.accounts.WnpAuthenticator"/>
-            </intent-filter>
-
-        </service>
-
     </application>
 
 </manifest>

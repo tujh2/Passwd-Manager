@@ -17,7 +17,6 @@ import com.wnp.passwdmanager.R;
 
 public class LoginFragment extends Fragment {
     private UserInfoViewModel loginModel;
-    private AccountManager accountManager;
 
     @Nullable
     @Override
@@ -27,7 +26,6 @@ public class LoginFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        accountManager = AccountManager.get(getContext());
         super.onViewCreated(view, savedInstanceState);
         loginModel = new ViewModelProvider(getActivity()).get(UserInfoViewModel.class);
         EditText user = view.findViewById(R.id.username);

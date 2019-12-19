@@ -21,7 +21,6 @@ public class AuthActivity extends AppCompatActivity implements FragmentNavigator
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
-        SharedPreferences sharedPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
         if(!RepoApplication.getToken().equals("") && !RepoApplication.getPin().equals(""))
             navigateToFragment(new UnlockFragment(), false);
         else if(savedInstanceState == null)
