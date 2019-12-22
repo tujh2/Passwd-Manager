@@ -58,8 +58,10 @@ public class AuthRepo {
                 Log.d("AuthRepo", "regonResponse" + response.code());
                 if(response.isSuccessful() && response.body() != null) {
                     Log.d("AuthRepo",  response.body().regStatus);
-                    if(response.body().regStatus.equals("successfully"))
+                    if(response.body().regStatus.equals("successfully")) {
+                        RepoApplication.setCurrentSyncNumber(0);
                         progress.postValue(AuthProgress.SUCCESS);
+                    }
                     else
                         progress.postValue(AuthProgress.FAILED);
                 } else
@@ -99,6 +101,7 @@ public class AuthRepo {
                 Log.d("AuthRepo", "onResponse" + response.code());
                 if(response.body() != null && response.code() == 200) {
                     progress.postValue(AuthProgress.SUCCESS);
+                    RepoApplication.setCurrentSyncNumber(0);
                     RepoApplication.setToken(response.body().token);
                 } else
                     progress.postValue(AuthProgress.FAILED);

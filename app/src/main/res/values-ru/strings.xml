@@ -17,4 +17,5 @@
     <string name="delete_record">Удалить запись</string>
     <string name="exit">Выход</string>
     <string name="settings">Настройки</string>
+    <string name="wrong_pin">Неверный пин-код</string>
 </resources>
