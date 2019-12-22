@@ -1,6 +1,5 @@
 package com.wnp.passwdmanager.AuthPart;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +13,9 @@ import androidx.fragment.app.Fragment;
 import com.wnp.passwdmanager.R;
 import com.wnp.passwdmanager.RepoApplication;
 
+import java.util.Objects;
+
+@SuppressWarnings("WeakerAccess")
 public class DefaultSettingsFragment extends Fragment {
     @Nullable
     @Override
@@ -22,7 +24,7 @@ public class DefaultSettingsFragment extends Fragment {
         EditText pinText = view.findViewById(R.id.pin);
         view.findViewById(R.id.finish_but).setOnClickListener(v -> {
             RepoApplication.setDefaultPin(pinText.getText().toString());
-            ((AuthActivity)getActivity()).switchActivity();
+            ((AuthActivity) Objects.requireNonNull(getActivity())).switchActivity();
         });
         return view;
     }

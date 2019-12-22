@@ -1,6 +1,5 @@
 package com.wnp.passwdmanager.AuthPart;
 
-import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +14,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.wnp.passwdmanager.R;
 
+import java.util.Objects;
+
 public class LoginFragment extends Fragment {
     private UserInfoViewModel loginModel;
 
@@ -27,7 +28,7 @@ public class LoginFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        loginModel = new ViewModelProvider(getActivity()).get(UserInfoViewModel.class);
+        loginModel = new ViewModelProvider(Objects.requireNonNull(getActivity())).get(UserInfoViewModel.class);
         EditText user = view.findViewById(R.id.username);
         EditText pass = view.findViewById(R.id.password);
         Button loginBtm = view.findViewById(R.id.login_button);

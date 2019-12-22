@@ -2,7 +2,6 @@ package com.wnp.passwdmanager;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 
 import androidx.security.crypto.EncryptedSharedPreferences;
@@ -16,9 +15,11 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 public class RepoApplication extends Application {
-    public static final String TOKEN = "token";
-    public static final String PIN = "pin";
-    public static final String SYNCNUM = "syncNumber";
+    private static final String TOKEN = "token";
+    private static final String PIN = "pin";
+    private static final String SYNCNUM = "syncNumber";
+    private static final String LOGIN = "LOGIN";
+    private static final String PASSWORD = "PASSWORD";
     private ApiRepo mApiRepo;
     private AuthRepo mAuthRepo;
     private PasswordsRepository passwordsRepository;
@@ -76,6 +77,22 @@ public class RepoApplication extends Application {
 
     public static void setCurrentSyncNumber(int num) {
         applicationSettings.edit().putInt(SYNCNUM, num).apply();
+    }
+
+    public static void setUsername(String user) {
+        applicationSettings.edit().putString(LOGIN, user).apply();
+    }
+
+    public static String getUsername() {
+        return applicationSettings.getString(LOGIN, "");
+    }
+
+    public static void setPassword(String pass) {
+        applicationSettings.edit().putString(PASSWORD, pass).apply();
+    }
+
+    public static String getPassword() {
+        return applicationSettings.getString(PASSWORD, "");
     }
 
     public static RepoApplication from(Context context) {

@@ -8,7 +8,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPassword"
-        android:ems="10"/>
+        android:ems="10"
+        android:importantForAutofill="no" />
     <Button
         android:id="@+id/finish_but"
         android:layout_width="wrap_content"

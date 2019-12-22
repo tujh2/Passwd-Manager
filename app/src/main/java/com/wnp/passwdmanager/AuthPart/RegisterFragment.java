@@ -14,8 +14,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.wnp.passwdmanager.R;
 
+import java.util.Objects;
+
+@SuppressWarnings("WeakerAccess")
 public class RegisterFragment extends Fragment {
-    UserInfoViewModel regViewModel;
+    private UserInfoViewModel regViewModel;
     static RegisterFragment newInstance() {
         return new RegisterFragment();
     }
@@ -32,7 +35,7 @@ public class RegisterFragment extends Fragment {
         EditText user  = view.findViewById(R.id.login_reg);
         EditText pass = view.findViewById(R.id.password_reg);
         Button regBtn = view.findViewById(R.id.reg_button);
-        regViewModel = new ViewModelProvider(getActivity()).get(UserInfoViewModel.class);
+        regViewModel = new ViewModelProvider(Objects.requireNonNull(getActivity())).get(UserInfoViewModel.class);
         regViewModel.getProgress().observe(getViewLifecycleOwner(), userState -> {
             switch (userState) {
                 case REG_FAILED:

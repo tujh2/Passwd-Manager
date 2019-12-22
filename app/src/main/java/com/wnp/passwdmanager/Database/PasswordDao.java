@@ -13,9 +13,6 @@ import java.util.List;
 public interface PasswordDao {
 
     @Insert
-    void insertAll(PasswordEntity... entities);
-
-    @Insert
     void insert(PasswordEntity entity);
 
     @Query("SELECT * FROM passwordList")

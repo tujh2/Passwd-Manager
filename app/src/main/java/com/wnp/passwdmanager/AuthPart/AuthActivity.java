@@ -1,8 +1,6 @@
 package com.wnp.passwdmanager.AuthPart;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,12 +32,6 @@ public class AuthActivity extends AppCompatActivity implements FragmentNavigator
         this.finish();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
     public void navigateToFragment(Fragment frag, boolean backStack) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager()
                 .beginTransaction().replace(R.id.auth_fragment, frag);

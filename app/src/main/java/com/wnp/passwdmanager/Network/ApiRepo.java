@@ -6,13 +6,12 @@ import retrofit2.Retrofit;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 
 public class ApiRepo {
-    private final OkHttpClient mOkHttpClient;
     private final LoginApi mAuthApi;
     private final RegApi mRegApi;
     private final GetPostDbApi mDatabaseApi;
 
     public ApiRepo() {
-        mOkHttpClient = new OkHttpClient()
+        OkHttpClient mOkHttpClient = new OkHttpClient()
                 .newBuilder()
                 .build();
 

@@ -3,11 +3,9 @@ package com.wnp.passwdmanager;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,14 +21,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.Operation;
 import androidx.work.WorkManager;
 
 import com.wnp.passwdmanager.Database.PasswordEntity;
@@ -38,6 +33,7 @@ import com.wnp.passwdmanager.Network.SyncWorker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -60,7 +56,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.exit_option:
-                getActivity().finishAndRemoveTask();
+                Objects.requireNonNull(getActivity()).finishAndRemoveTask();
                 return true;
             case R.id.settings_option:
                 //TODO:
@@ -85,7 +81,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         progressBar = view.findViewById(R.id.progressBar);
         mAdapter = new PasswordListDataAdapter();
         recyclerView.setAdapter(mAdapter);
-        passwordsViewModel = new ViewModelProvider(getActivity()).get(PasswordsViewModel.class);
+        passwordsViewModel = new ViewModelProvider(Objects.requireNonNull(getActivity())).get(PasswordsViewModel.class);
         mSwipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
         passwordsViewModel.getAllPasswords().observe(getViewLifecycleOwner(), t -> {
             mAdapter.setData(t);

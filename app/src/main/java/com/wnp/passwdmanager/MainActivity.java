@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
         navigateToFragment(new MainFragment(), false);
     }
 
-    @Override
     public void navigateToFragment(Fragment frag, boolean backStack) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager()
                 .beginTransaction().replace(R.id.mainFragment, frag);

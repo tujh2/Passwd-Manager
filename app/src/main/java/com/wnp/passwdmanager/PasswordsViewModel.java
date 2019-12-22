@@ -13,7 +13,7 @@ import com.wnp.passwdmanager.Database.PasswordsRepository;
 import java.util.List;
 
 public class PasswordsViewModel extends AndroidViewModel {
-    private PasswordsRepository passwordsRepository;
+    private final PasswordsRepository passwordsRepository;
     private LiveData<List<PasswordEntity>> allPasswords;
 
     public PasswordsViewModel(@NonNull Application application) {

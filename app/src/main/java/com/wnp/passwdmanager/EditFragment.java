@@ -14,8 +14,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.wnp.passwdmanager.Database.PasswordsRepository;
 import com.wnp.passwdmanager.Database.PasswordEntity;
+
+import java.util.Objects;
 
 public class EditFragment extends Fragment {
     private PasswordsViewModel passwordsViewModel;
@@ -41,14 +42,10 @@ public class EditFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.delete_record_option:
-                passwordsViewModel.delete(passwordCurrent);
-                getActivity().getSupportFragmentManager().popBackStack();
-                return true;
-
-                default:
-                    break;
+        if (item.getItemId() == R.id.delete_record_option) {
+            passwordsViewModel.delete(passwordCurrent);
+            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStack();
+            return true;
         }
         return false;
     }
@@ -62,7 +59,7 @@ public class EditFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        passwordsViewModel = new ViewModelProvider(getActivity()).get(PasswordsViewModel.class);
+        passwordsViewModel = new ViewModelProvider(Objects.requireNonNull(getActivity())).get(PasswordsViewModel.class);
 
         EditText domain = view.findViewById(R.id.domain_edit);
         EditText url = view.findViewById(R.id.url_edit);

@@ -122,6 +122,7 @@ public class UserInfoViewModel extends AndroidViewModel  {
         String getLogin() { return mLogin; }
         String getPassword() { return mPassword; }
 
+        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
         boolean isValid() {
             return !TextUtils.isEmpty(mLogin) && !TextUtils.isEmpty(mPassword);
         }

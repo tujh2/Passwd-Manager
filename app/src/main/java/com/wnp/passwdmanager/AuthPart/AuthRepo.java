@@ -103,6 +103,8 @@ public class AuthRepo {
                     progress.postValue(AuthProgress.SUCCESS);
                     RepoApplication.setCurrentSyncNumber(0);
                     RepoApplication.setToken(response.body().token);
+                    RepoApplication.setUsername(username);
+                    RepoApplication.setPassword(password);
                 } else
                     progress.postValue(AuthProgress.FAILED);
             }
