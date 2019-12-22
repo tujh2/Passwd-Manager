@@ -28,7 +28,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SyncWorker extends Worker {
-    static final String TAG = "syncWorker";
+    private static final String TAG = "syncWorker";
 
     public SyncWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -85,7 +85,8 @@ public class SyncWorker extends Worker {
             File file = new File(getApplicationContext().getDatabasePath("userPasswords.db").getAbsolutePath());
             InputStream inputStream = null;
             OutputStream outputStream = null;
-            file.delete(); file.createNewFile();
+            if(file.delete())
+                file.createNewFile();
             try {
                 byte[] fileReader = new byte[4096];
 

@@ -18,4 +18,5 @@
     <string name="exit">Выход</string>
     <string name="settings">Настройки</string>
     <string name="wrong_pin">Неверный пин-код</string>
+    <string name="key_icon">key_icon</string>
 </resources>

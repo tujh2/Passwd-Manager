@@ -8,8 +8,8 @@ public class PasswordEntity {
     @PrimaryKey(autoGenerate = true)
     int ID;
 
-    String domain_name;
-    String URL, username, password;
+    private String domain_name;
+    private String URL, username, password;
 
     public PasswordEntity(String domain_name, String URL, String username, String password) {
         this.domain_name = domain_name;

@@ -27,7 +27,7 @@ public class AuthRepo {
     }
 
     @NonNull
-    public static AuthRepo getInstance(Context context) {
+    static AuthRepo getInstance(Context context) {
         return RepoApplication.from(context).getmAuthRepo();
     }
 

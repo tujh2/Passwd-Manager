@@ -22,7 +22,9 @@ public class UnlockFragment extends Fragment {
         EditText pass = view.findViewById(R.id.unlock_pass);
         view.findViewById(R.id.unlock_button).setOnClickListener(v -> {
             if(RepoApplication.getPin().equals(pass.getText().toString()) ) {
-                ((AuthActivity)getActivity()).switchActivity();
+                AuthActivity authActivity = (AuthActivity)getActivity();
+                if(authActivity != null)
+                    authActivity.switchActivity();
             }
             else
                 Toast.makeText(getContext(), R.string.wrong_pin, Toast.LENGTH_SHORT).show();

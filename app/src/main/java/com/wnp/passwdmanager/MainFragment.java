@@ -103,9 +103,8 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 case SUCCEEDED:
                     mSwipeRefreshLayout.setRefreshing(false);
                     passwordsViewModel.updateDB();
-                    passwordsViewModel.getAllPasswords().observe(getViewLifecycleOwner(), t -> {
-                        mAdapter.setData(t);
-                    });
+                    passwordsViewModel.getAllPasswords().observe(getViewLifecycleOwner(),
+                            t -> mAdapter.setData(t));
                     Log.d(TAG, "SUCCESS");
                     break;
                 case FAILED:
@@ -117,9 +116,8 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
-        view.findViewById(R.id.addItemButton).setOnClickListener(v -> {
-            ((MainActivity)getActivity()).navigateToFragment(new EditFragment(), true);
-        });
+        view.findViewById(R.id.addItemButton).setOnClickListener(v ->
+                ((MainActivity)getActivity()).navigateToFragment(new EditFragment(), true));
     }
 
     @Override

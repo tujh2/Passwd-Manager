@@ -14,7 +14,7 @@ import retrofit2.http.Part;
 
 public interface GetPostDbApi {
 
-    public class syncNumResponse {
+    class syncNumResponse {
         int syncNumber;
     }
 
@@ -24,7 +24,7 @@ public interface GetPostDbApi {
     @GET("/auth/getDatabase")
     Call<ResponseBody> getPasswordsDatabase(@Header("Authorization") String token);
 
-    public class ResponseOnPush {
+    class ResponseOnPush {
         String status;
     }
 
