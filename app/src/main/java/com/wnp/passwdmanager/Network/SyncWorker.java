@@ -39,7 +39,7 @@ public class SyncWorker extends Worker {
                     .getDatabaseApi()
                     .getSyncNumber("Bearer " + RepoApplication.getToken())
                     .execute();
-            if (numResponse.body() != null && numResponse.code() == 401) {
+            if (numResponse.code() == 401) {
                 Response<LoginApi.Response> tokenResponse = application.getmApi().getmAuthApi()
                         .Auth(new LoginApi.UserPlain(RepoApplication.getUsername(),
                                 RepoApplication.getPassword())).execute();
