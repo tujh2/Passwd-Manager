@@ -25,11 +25,6 @@ public class PasswordsRepository {
 
     public void insert(PasswordEntity passwordEntity) {
         executor.execute(() -> {
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
             passwordDao.insert(passwordEntity);
         });
     }
@@ -53,7 +48,10 @@ public class PasswordsRepository {
     }
 
     public void close(Context context) {
-        AppDatabase.getInstance(context).close();
+        AppDatabase db = AppDatabase.getInstance(context);
+        if (db.isOpen() ) {
+            db.close();
+        }
     }
 
     public void reopenDatabase(Context context) {

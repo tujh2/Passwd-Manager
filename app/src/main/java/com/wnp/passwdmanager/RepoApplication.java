@@ -3,6 +3,7 @@ package com.wnp.passwdmanager;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
@@ -40,6 +41,13 @@ public class RepoApplication extends Application {
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        Log.d("APP", "onTerminate");
+        passwordsRepository.close(this);
     }
 
     public PasswordsRepository getPasswordsRepository() {

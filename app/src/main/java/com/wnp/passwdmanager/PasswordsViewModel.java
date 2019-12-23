@@ -48,4 +48,8 @@ public class PasswordsViewModel extends AndroidViewModel {
         passwordsRepository.reopenDatabase(getApplication().getApplicationContext());
         allPasswords = passwordsRepository.readAll();
     }
+
+    void close() {
+        passwordsRepository.close(getApplication().getApplicationContext());
+    }
 }

@@ -39,11 +39,9 @@ import java.util.Objects;
 public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private PasswordListDataAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private ProgressBar progressBar;
     private RecyclerView recyclerView;
     private final static String TAG = "mainFrag";
     private PasswordsViewModel passwordsViewModel;
-
 
     @Nullable
     @Override
@@ -59,12 +57,18 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 Objects.requireNonNull(getActivity()).finishAndRemoveTask();
                 return true;
             case R.id.settings_option:
-                //TODO:
+                //TODO: Settongs xml
                 return false;
                 default:
                     break;
         }
         return false;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.d(TAG, "onAttach");
     }
 
     @Override
@@ -78,39 +82,38 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         super.onViewCreated(view, savedInstanceState);
 
         recyclerView = view.findViewById(R.id.passwordList);
-        progressBar = view.findViewById(R.id.progressBar);
         mAdapter = new PasswordListDataAdapter();
         recyclerView.setAdapter(mAdapter);
         passwordsViewModel = new ViewModelProvider(Objects.requireNonNull(getActivity())).get(PasswordsViewModel.class);
+
         mSwipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
-        passwordsViewModel.getAllPasswords().observe(getViewLifecycleOwner(), t -> {
-            mAdapter.setData(t);
-            mSwipeRefreshLayout.setRefreshing(false);
-            recyclerView.setVisibility(View.VISIBLE);
-            progressBar.setVisibility(View.GONE);
-        });
+        mSwipeRefreshLayout.setRefreshing(true);
         mSwipeRefreshLayout.setOnRefreshListener(this);
+        passwordsViewModel.getAllPasswords().observe(getViewLifecycleOwner(),
+                t -> mAdapter.setData(t));
 
         OneTimeWorkRequest syncRequest = new OneTimeWorkRequest
                 .Builder(SyncWorker.class).build();
         WorkManager.getInstance().enqueue(syncRequest);
-        WorkManager.getInstance().getWorkInfoByIdLiveData(syncRequest.getId()).observe(getViewLifecycleOwner(), state -> {
-            switch (state.getState()) {
-                case SUCCEEDED:
+        WorkManager.getInstance().getWorkInfoByIdLiveData(syncRequest.getId())
+                .observe(getViewLifecycleOwner(), state -> {
+                    switch (state.getState()) {
+                        case SUCCEEDED:
+                            passwordsViewModel.updateDB();
+                            passwordsViewModel.getAllPasswords().observe(getViewLifecycleOwner(),
+                                    t -> mAdapter.setData(t));
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            break;
+                        case FAILED:
+                            passwordsViewModel.updateDB();
+                            Toast.makeText(getContext(), "FAILED", Toast.LENGTH_SHORT).show();
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            break;
+                        case RUNNING:
+                            break;
+                    }
                     mSwipeRefreshLayout.setRefreshing(false);
-                    passwordsViewModel.updateDB();
-                    passwordsViewModel.getAllPasswords().observe(getViewLifecycleOwner(),
-                            t -> mAdapter.setData(t));
-                    Log.d(TAG, "SUCCESS");
-                    break;
-                case FAILED:
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    Toast.makeText(getContext(), "FAILED", Toast.LENGTH_SHORT).show();
-                    break;
-                default:
-                    mSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
+                });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
         view.findViewById(R.id.addItemButton).setOnClickListener(v ->
                 ((MainActivity)getActivity()).navigateToFragment(new EditFragment(), true));
@@ -122,26 +125,25 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         OneTimeWorkRequest syncRequest = new OneTimeWorkRequest
                 .Builder(SyncWorker.class).build();
         WorkManager.getInstance().enqueue(syncRequest);
-        WorkManager.getInstance().getWorkInfoByIdLiveData(syncRequest.getId()).observe(getViewLifecycleOwner(), state -> {
-            switch (state.getState()) {
-                case SUCCEEDED:
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    passwordsViewModel.updateDB();
-                    Log.d(TAG, "SUCCESS");
-                    break;
-                case FAILED:
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    Log.d(TAG, "FAILURE");
-                    break;
-                default:
-                    mSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
-        //passwordsViewModel.updateDB();
+        WorkManager.getInstance().getWorkInfoByIdLiveData(syncRequest.getId())
+                .observe(getViewLifecycleOwner(), state -> {
+                    switch (state.getState()) {
+                        case SUCCEEDED:
+                            passwordsViewModel.updateDB();
+                            passwordsViewModel.getAllPasswords().observe(getViewLifecycleOwner(),
+                                    t -> mAdapter.setData(t));
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            break;
+                        case FAILED:
+                            passwordsViewModel.updateDB();
+                            Toast.makeText(getContext(), "FAILED", Toast.LENGTH_SHORT).show();
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            break;
+                        case RUNNING:
+                            break;
+                    }
+                });
     }
-
-
-
 
     class PasswordListDataAdapter extends RecyclerView.Adapter<PasswordListViewHolder> {
         private List<PasswordEntity> mData;
@@ -169,6 +171,10 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 if( activity != null) {
                     activity.navigateToFragment(PasswordViewFragment.newInstance(item), true);
                 }
+            });
+            holder.itemView.setOnLongClickListener(v -> {
+                Log.d(TAG, "onLongClick");
+                return true;
             });
             holder.itemView.findViewById(R.id.copy_but).setOnClickListener(v -> {
                 Animator scale = ObjectAnimator.ofPropertyValuesHolder(v,
