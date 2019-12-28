@@ -20,6 +20,7 @@ import com.wnp.passwdmanager.Network.SyncWorker;
 public class MainActivity extends AppCompatActivity implements FragmentNavigator {
 
     public static final String SYNC_WORKER = "syncWorker";
+    private OneTimeWorkRequest decryptRequest;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -29,7 +30,29 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
         if(savedInstanceState == null) {
             navigateToFragment(new UnlockFragment(), false);
         }
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Data data = new Data.Builder()
+                .putString(EncryptionWorker.TYPE, EncryptionWorker.DECRYPT).build();
+        decryptRequest = new OneTimeWorkRequest.
+                Builder(EncryptionWorker.class)
+                .setInputData(data).build();
+        WorkManager.getInstance().enqueue(decryptRequest);
+    }
+
+    @Override
+    protected void onStop() {
+        navigateToFragment(new UnlockFragment(), false);
+        Data data = new Data.Builder()
+                .putString(EncryptionWorker.TYPE, EncryptionWorker.ENCRYPT).build();
+        OneTimeWorkRequest encryptRequest = new OneTimeWorkRequest.
+                Builder(EncryptionWorker.class)
+                .setInputData(data).build();
+        WorkManager.getInstance().enqueue(encryptRequest);
+        super.onStop();
     }
 
     public void navigateToFragment(Fragment frag, boolean backStack) {
@@ -38,5 +61,9 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
         if (backStack)
             fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+    }
+
+    public OneTimeWorkRequest getDecryptRequest() {
+        return decryptRequest;
     }
 }

@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +34,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.wnp.passwdmanager.Database.EncryptionWorker;
 import com.wnp.passwdmanager.Database.PasswordEntity;
 import com.wnp.passwdmanager.Network.SyncWorker;
@@ -48,6 +50,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     private RecyclerView recyclerView;
     private final static String TAG = "mainFrag";
     private PasswordsViewModel passwordsViewModel;
+    private FloatingActionButton addButton;
 
     @Nullable
     @Override
@@ -88,13 +91,20 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
         mSwipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        passwordsViewModel.getAllPasswords().observe(getViewLifecycleOwner(),
-                t -> mAdapter.setData(t));
+        //
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
-        view.findViewById(R.id.addItemButton).setOnClickListener(v ->
-                ((MainActivity) getActivity()).navigateToFragment(new EditFragment(), true));
-        refreshView();
+        addButton = view.findViewById(R.id.addItemButton);
+        MainActivity activity = ((MainActivity) getActivity());
+        addButton.setOnClickListener(v ->
+                activity.navigateToFragment(new EditFragment(), true));
+        WorkManager.getInstance()
+                .getWorkInfoByIdLiveData(activity.getDecryptRequest().getId())
+                .observe(getViewLifecycleOwner(), workInfo -> {
+                    if(workInfo.getState().isFinished()) {
+                        refreshView();
+                    }
+        });
     }
 
     @Override
@@ -104,6 +114,11 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     private void refreshView() {
         mSwipeRefreshLayout.setRefreshing(true);
+        addButton.setEnabled(false);
+        passwordsViewModel.updateDB();
+        passwordsViewModel.getAllPasswords()
+                .observe(getViewLifecycleOwner(), t -> mAdapter.setData(t));
+
         WorkManager workManager = WorkManager.getInstance();
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -118,14 +133,16 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             switch (workInfo.getState()) {
                 case SUCCEEDED:
                     passwordsViewModel.updateDB();
-                    passwordsViewModel.getAllPasswords().observe(getViewLifecycleOwner(),
-                            t -> mAdapter.setData(t));
+                    passwordsViewModel.getAllPasswords()
+                            .observe(getViewLifecycleOwner(), t -> mAdapter.setData(t));
                     mSwipeRefreshLayout.setRefreshing(false);
+                    addButton.setEnabled(true);
                     break;
                 case FAILED:
                     passwordsViewModel.updateDB();
-                    Toast.makeText(getContext(), "FAILED", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Failed to sync with server", Toast.LENGTH_SHORT).show();
                     mSwipeRefreshLayout.setRefreshing(false);
+                    addButton.setEnabled(true);
                     break;
                 case RUNNING:
                     break;
