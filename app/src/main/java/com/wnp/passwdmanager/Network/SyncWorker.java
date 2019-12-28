@@ -4,16 +4,33 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.Operation;
+import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.wnp.passwdmanager.Database.EncryptionWorker;
 import com.wnp.passwdmanager.RepoApplication;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.Executor;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -35,6 +52,10 @@ public class SyncWorker extends Worker {
             RepoApplication application = RepoApplication.from(getApplicationContext());
             application.getPasswordsRepository().close(getApplicationContext());
 
+            String fileDecr = getApplicationContext()
+                    .getDatabasePath("userPasswords.db").getAbsolutePath();
+            String encrDB = getApplicationContext().getFilesDir().getAbsolutePath() + File.separator + "encryptedDB";
+
             Response<GetPostDbApi.syncNumResponse> numResponse = application.getmApi()
                     .getDatabaseApi()
                     .getSyncNumber("Bearer " + RepoApplication.getToken())
@@ -55,14 +76,16 @@ public class SyncWorker extends Worker {
                     Response<ResponseBody> response = RepoApplication.from(getApplicationContext()).getmApi().getDatabaseApi()
                             .getPasswordsDatabase("Bearer " + RepoApplication.getToken()).execute();
                     if (response.isSuccessful() && response.code() == 200 && response.body() != null) {
-                        if (writeResponseBodyToDisk(response.body())) {
+                        if (writeResponseBodyToDisk(response.body(), encrDB)) {
                             Log.d(TAG, "db has been received");
                             RepoApplication.setCurrentSyncNumber(numResponse.body().syncNumber);
+                            decryptDb(encrDB, fileDecr, application.getEncryptionKey());
                             return Result.success();
                         }
                     }
                 } else if (currentSyncNumber > numResponse.body().syncNumber) {
-                    File file = new File(getApplicationContext().getDatabasePath("userPasswords.db").getAbsolutePath());
+                    encryptDb(fileDecr, encrDB, application.getEncryptionKey());
+                    File file = new File(encrDB);
                     RequestBody requestFile = RequestBody.create(file, MediaType.parse("*/*"));
                     MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
                     RequestBody filename = RequestBody.create(file.getName(), MediaType.parse("text/plain"));
@@ -77,21 +100,23 @@ public class SyncWorker extends Worker {
                     }
                 } else return Result.success();
             }
-        } catch (IOException e) {
+        } catch (IOException |
+                NoSuchAlgorithmException |
+                InvalidKeyException |
+                NoSuchPaddingException e) {
             e.printStackTrace();
         }
         return Result.failure();
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private boolean writeResponseBodyToDisk(ResponseBody body) {
+    private boolean writeResponseBodyToDisk(ResponseBody body, String filename) {
         try {
             //File file = new File(getFilesDir().getAbsolutePath() + File.separator + "encryptedDb");
-            File file = new File(getApplicationContext().getDatabasePath("userPasswords.db").getAbsolutePath());
+            File file = new File(filename);
             InputStream inputStream = null;
             OutputStream outputStream = null;
-            if (file.delete())
-                file.createNewFile();
+            //if (file.delete())
+            //    file.createNewFile();
             try {
                 byte[] fileReader = new byte[4096];
 
@@ -130,5 +155,42 @@ public class SyncWorker extends Worker {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    private static void encryptDb(String file, String fileEncrypted, String key)
+            throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+        FileInputStream fis = new FileInputStream(file);
+        FileOutputStream fos = new FileOutputStream(fileEncrypted);
+        SecretKeySpec sks = new SecretKeySpec(key.getBytes(), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, sks);
+        CipherOutputStream cos = new CipherOutputStream(fos, cipher);
+        int b;
+        byte[] d = new byte[8];
+        while ((b = fis.read(d)) != -1) {
+            cos.write(d, 0, b);
+        }
+        cos.flush();
+        cos.close();
+        fis.close();
+        File f = new File(file);
+    }
+
+    private static void decryptDb(String fileEncrypted, String fileDecrypted, String key)
+            throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+        FileInputStream fis = new FileInputStream(fileEncrypted);
+        FileOutputStream fos = new FileOutputStream(fileDecrypted);
+        SecretKeySpec sks = new SecretKeySpec(key.getBytes(), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, sks);
+        CipherInputStream cis = new CipherInputStream(fis, cipher);
+        int b;
+        byte[] d = new byte[8];
+        while ((b = cis.read(d)) != -1) {
+            fos.write(d, 0, b);
+        }
+        fos.flush();
+        fos.close();
+        cis.close();
     }
 }

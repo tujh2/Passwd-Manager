@@ -25,6 +25,7 @@ public class PasswordsRepository {
 
     public void insert(PasswordEntity passwordEntity) {
         executor.execute(() -> {
+            RepoApplication.setCurrentSyncNumber(RepoApplication.getCurrentSyncNumber() + 1);
             passwordDao.insert(passwordEntity);
         });
     }
@@ -49,7 +50,7 @@ public class PasswordsRepository {
 
     public void close(Context context) {
         AppDatabase db = AppDatabase.getInstance(context);
-        if (db.isOpen() ) {
+        if (db.isOpen()) {
             db.close();
         }
     }

@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.wnp.passwdmanager.MainActivity;
+import com.wnp.passwdmanager.MainFragment;
 import com.wnp.passwdmanager.R;
 import com.wnp.passwdmanager.RepoApplication;
 
@@ -22,9 +24,10 @@ public class UnlockFragment extends Fragment {
         EditText pass = view.findViewById(R.id.unlock_pass);
         view.findViewById(R.id.unlock_button).setOnClickListener(v -> {
             if(RepoApplication.getPin().equals(pass.getText().toString()) ) {
-                AuthActivity authActivity = (AuthActivity)getActivity();
-                if(authActivity != null)
-                    authActivity.switchActivity();
+                MainActivity activity = (MainActivity) getActivity();
+//                AuthActivity authActivity = (AuthActivity)getActivity();
+                if(activity != null)
+                    activity.navigateToFragment(new MainFragment(), false);
             }
             else
                 Toast.makeText(getContext(), R.string.wrong_pin, Toast.LENGTH_SHORT).show();

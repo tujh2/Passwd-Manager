@@ -20,7 +20,8 @@ public class AuthActivity extends AppCompatActivity implements FragmentNavigator
         setContentView(R.layout.activity_auth);
 
         if(!RepoApplication.getToken().equals("") && !RepoApplication.getPin().equals(""))
-            navigateToFragment(new UnlockFragment(), false);
+            switchActivity();
+//            navigateToFragment(new UnlockFragment(), false);
         else if(savedInstanceState == null)
             navigateToFragment(new LoginFragment(), false);
     }

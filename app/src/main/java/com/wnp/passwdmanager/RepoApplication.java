@@ -7,8 +7,12 @@ import android.util.Log;
 
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import com.wnp.passwdmanager.AuthPart.AuthRepo;
+import com.wnp.passwdmanager.Database.EncryptionWorker;
 import com.wnp.passwdmanager.Database.PasswordsRepository;
 import com.wnp.passwdmanager.Network.ApiRepo;
 
@@ -21,6 +25,7 @@ public class RepoApplication extends Application {
     private static final String SYNCNUM = "syncNumber";
     private static final String LOGIN = "LOGIN";
     private static final String PASSWORD = "PASSWORD";
+    public static final String ENCRYPTKEY = "ENCRYPTKEY";
     private ApiRepo mApiRepo;
     private AuthRepo mAuthRepo;
     private PasswordsRepository passwordsRepository;
@@ -47,7 +52,15 @@ public class RepoApplication extends Application {
     public void onTerminate() {
         super.onTerminate();
         Log.d("APP", "onTerminate");
-        passwordsRepository.close(this);
+        //passwordsRepository.close(this);
+    }
+
+    public String getEncryptionKey() {
+        return applicationSettings.getString(ENCRYPTKEY, "B85E079D8FE739C8779125D62B4AFD68");
+    }
+
+    public void setEncryptionKey(String key) {
+        applicationSettings.edit().putString(ENCRYPTKEY, key).apply();
     }
 
     public PasswordsRepository getPasswordsRepository() {
