@@ -16,14 +16,19 @@ public class PasswordsRepository {
     private PasswordDao passwordDao;
     private LiveData<List<PasswordEntity>> allPasswords;
     private final Executor executor = Executors.newSingleThreadExecutor();
+    private static Application app;
+    AppDatabase database;
 
     public PasswordsRepository(@NonNull Application application) {
-        AppDatabase database = AppDatabase.getInstance(application.getApplicationContext());
+        app = application;
+        database = AppDatabase.getInstance(app.getApplicationContext());
         passwordDao = database.getPasswordDao();
         allPasswords = passwordDao.getAllEntities();
     }
 
     public void insert(PasswordEntity passwordEntity) {
+        if(passwordDao == null || allPasswords == null)
+            reopenDatabase();
         executor.execute(() -> {
             RepoApplication.setCurrentSyncNumber(RepoApplication.getCurrentSyncNumber() + 1);
             passwordDao.insert(passwordEntity);
@@ -31,6 +36,8 @@ public class PasswordsRepository {
     }
 
     public void update(PasswordEntity passwordEntity) {
+        if(passwordDao == null || allPasswords == null)
+            reopenDatabase();
         executor.execute(() -> {
             RepoApplication.setCurrentSyncNumber(RepoApplication.getCurrentSyncNumber() + 1);
             passwordDao.update(passwordEntity);
@@ -38,6 +45,8 @@ public class PasswordsRepository {
     }
 
     public void delete(PasswordEntity passwordEntity) {
+        if(passwordDao == null || allPasswords == null)
+            reopenDatabase();
         executor.execute(() -> {
             RepoApplication.setCurrentSyncNumber(RepoApplication.getCurrentSyncNumber() + 1);
             passwordDao.delete(passwordEntity);
@@ -45,18 +54,22 @@ public class PasswordsRepository {
     }
 
     public LiveData<List<PasswordEntity>> readAll() {
+        if(passwordDao == null || allPasswords == null)
+            reopenDatabase();
         return allPasswords;
     }
 
-    public void close(Context context) {
-        AppDatabase db = AppDatabase.getInstance(context);
-        if (db.isOpen()) {
-            db.close();
+    public void close() {
+        if (database.isOpen()) {
+            database.close();
+            passwordDao = null;
+            allPasswords = null;
         }
     }
 
-    public void reopenDatabase(Context context) {
-        passwordDao = AppDatabase.getInstance(context).getPasswordDao();
+    private void reopenDatabase() {
+        database = AppDatabase.getInstance(app.getApplicationContext());
+        passwordDao = database.getPasswordDao();
         allPasswords = passwordDao.getAllEntities();
     }
 }

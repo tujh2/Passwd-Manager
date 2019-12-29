@@ -43,9 +43,13 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
         WorkManager.getInstance().enqueue(decryptRequest);
     }
 
+    public OneTimeWorkRequest getDecryptRequest() {
+        return decryptRequest;
+    }
+
     @Override
     protected void onStop() {
-        navigateToFragment(new UnlockFragment(), false);
+        //navigateToFragment(new UnlockFragment(), false);
         Data data = new Data.Builder()
                 .putString(EncryptionWorker.TYPE, EncryptionWorker.ENCRYPT).build();
         OneTimeWorkRequest encryptRequest = new OneTimeWorkRequest.
@@ -61,9 +65,5 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
         if (backStack)
             fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-    }
-
-    public OneTimeWorkRequest getDecryptRequest() {
-        return decryptRequest;
     }
 }

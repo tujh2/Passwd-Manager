@@ -39,16 +39,18 @@ public class EncryptionWorker extends Worker {
     @Override
     public Result doWork() {
         RepoApplication application = RepoApplication.from(getApplicationContext());
-        application.getPasswordsRepository().close(getApplicationContext());
+        application.getPasswordsRepository().close();
 
         String file = getApplicationContext()
                 .getDatabasePath("userPasswords.db").getAbsolutePath();
         String encrDB = getApplicationContext().getFilesDir().getAbsolutePath() + File.separator + "encryptedDB";
+        String encryptionKey = RepoApplication.getEncryptionKey();
+        Log.d(TAG, encryptionKey + " " + encryptionKey.getBytes().length);
         String inputData = getInputData().getString(TYPE);
         if (inputData != null) {
             if (inputData.equals(ENCRYPT)) {
                 try {
-                    encryptDb(file, encrDB, application.getEncryptionKey());
+                    encryptDb(file, encrDB, encryptionKey);
                     Log.d(TAG, "encrypted");
                     return Result.success();
                 } catch (IOException |
@@ -59,7 +61,7 @@ public class EncryptionWorker extends Worker {
                 }
             } else if (inputData.equals(DECRYPT)) {
                 try {
-                    decryptDb(encrDB, file, application.getEncryptionKey());
+                    decryptDb(encrDB, file, encryptionKey);
                     Log.d(TAG, "decrypted");
                     return Result.success();
                 } catch (IOException |

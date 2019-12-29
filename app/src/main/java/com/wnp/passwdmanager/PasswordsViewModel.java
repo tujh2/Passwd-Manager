@@ -14,18 +14,16 @@ import java.util.List;
 
 public class PasswordsViewModel extends AndroidViewModel {
     private final PasswordsRepository passwordsRepository;
-    private LiveData<List<PasswordEntity>> allPasswords;
 
     public PasswordsViewModel(@NonNull Application application) {
         super(application);
         passwordsRepository =
                 RepoApplication.from(application.getApplicationContext())
                         .getPasswordsRepository();
-        allPasswords = passwordsRepository.readAll();
     }
 
     LiveData<List<PasswordEntity>> getAllPasswords() {
-        return allPasswords;
+        return passwordsRepository.readAll();
     }
 
     void insert(PasswordEntity passwordEntity) {
@@ -42,14 +40,5 @@ public class PasswordsViewModel extends AndroidViewModel {
     void update(PasswordEntity passwordEntity) {
         RepoApplication.setCurrentSyncNumber(RepoApplication.getCurrentSyncNumber() + 1);
         passwordsRepository.update(passwordEntity);
-    }
-
-    void updateDB() {
-        passwordsRepository.reopenDatabase(getApplication().getApplicationContext());
-        allPasswords = passwordsRepository.readAll();
-    }
-
-    void close() {
-        passwordsRepository.close(getApplication().getApplicationContext());
     }
 }

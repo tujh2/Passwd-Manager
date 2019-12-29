@@ -55,11 +55,11 @@ public class RepoApplication extends Application {
         //passwordsRepository.close(this);
     }
 
-    public String getEncryptionKey() {
+    public static String getEncryptionKey() {
         return applicationSettings.getString(ENCRYPTKEY, "B85E079D8FE739C8779125D62B4AFD68");
     }
 
-    public void setEncryptionKey(String key) {
+    public static void setEncryptionKey(String key) {
         applicationSettings.edit().putString(ENCRYPTKEY, key).apply();
     }
 

@@ -29,7 +29,6 @@ public class UserInfoViewModel extends AndroidViewModel  {
             mUserState.postValue(UserState.REG_ERROR);
         } else if(mUserState.getValue() != UserState.REG_IN_PROGRESS) {
             requestRegistration(regData);
-            requestLogin(regData);
         }
     }
 

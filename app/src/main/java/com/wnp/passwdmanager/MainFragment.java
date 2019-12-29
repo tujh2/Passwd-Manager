@@ -27,8 +27,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
@@ -42,9 +44,11 @@ import com.wnp.passwdmanager.Network.SyncWorker;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+    private static final String WORK_NAME = "singleSyncWorker";
     private PasswordListDataAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView recyclerView;
@@ -91,7 +95,6 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
         mSwipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        //
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
         addButton = view.findViewById(R.id.addItemButton);
@@ -99,7 +102,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         addButton.setOnClickListener(v ->
                 activity.navigateToFragment(new EditFragment(), true));
         WorkManager.getInstance()
-                .getWorkInfoByIdLiveData(activity.getDecryptRequest().getId())
+                .getWorkInfoByIdLiveData(((MainActivity) getActivity()).getDecryptRequest().getId())
                 .observe(getViewLifecycleOwner(), workInfo -> {
                     if(workInfo.getState().isFinished()) {
                         refreshView();
@@ -115,13 +118,12 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     private void refreshView() {
         mSwipeRefreshLayout.setRefreshing(true);
         addButton.setEnabled(false);
-        passwordsViewModel.updateDB();
         passwordsViewModel.getAllPasswords()
                 .observe(getViewLifecycleOwner(), t -> mAdapter.setData(t));
 
         WorkManager workManager = WorkManager.getInstance();
         Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
+//                .setRequiredNetworkType(NetworkType.CONNECTED)
                 .setRequiresBatteryNotLow(true)
                 .build();
         OneTimeWorkRequest syncRequest = new OneTimeWorkRequest
@@ -132,14 +134,12 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         workManager.getWorkInfoByIdLiveData(syncRequest.getId()).observe(getViewLifecycleOwner(), workInfo -> {
             switch (workInfo.getState()) {
                 case SUCCEEDED:
-                    passwordsViewModel.updateDB();
                     passwordsViewModel.getAllPasswords()
                             .observe(getViewLifecycleOwner(), t -> mAdapter.setData(t));
                     mSwipeRefreshLayout.setRefreshing(false);
                     addButton.setEnabled(true);
                     break;
                 case FAILED:
-                    passwordsViewModel.updateDB();
                     Toast.makeText(getContext(), "Failed to sync with server", Toast.LENGTH_SHORT).show();
                     mSwipeRefreshLayout.setRefreshing(false);
                     addButton.setEnabled(true);
@@ -191,8 +191,10 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 if (getActivity() != null) {
                     ClipboardManager clipboardManager = (ClipboardManager) getActivity()
                             .getSystemService(Context.CLIPBOARD_SERVICE);
-                    if (clipboardManager != null)
+                    if (clipboardManager != null) {
                         clipboardManager.setPrimaryClip(clipData);
+                        Toast.makeText(getContext(), "Copied", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }

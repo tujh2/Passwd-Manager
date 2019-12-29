@@ -36,6 +36,7 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import retrofit2.Call;
 import retrofit2.Response;
 
 public class SyncWorker extends Worker {
@@ -50,24 +51,26 @@ public class SyncWorker extends Worker {
     public Result doWork() {
         try {
             RepoApplication application = RepoApplication.from(getApplicationContext());
-            application.getPasswordsRepository().close(getApplicationContext());
+            application.getPasswordsRepository().close();
 
             String fileDecr = getApplicationContext()
                     .getDatabasePath("userPasswords.db").getAbsolutePath();
             String encrDB = getApplicationContext().getFilesDir().getAbsolutePath() + File.separator + "encryptedDB";
 
-            Response<GetPostDbApi.syncNumResponse> numResponse = application.getmApi()
+            Call<GetPostDbApi.syncNumResponse> numCall = application.getmApi()
                     .getDatabaseApi()
-                    .getSyncNumber("Bearer " + RepoApplication.getToken())
-                    .execute();
+                    .getSyncNumber("Bearer " + RepoApplication.getToken());
+            Response<GetPostDbApi.syncNumResponse> numResponse = numCall.execute();
             if (numResponse.code() == 401) {
                 Response<LoginApi.Response> tokenResponse = application.getmApi().getmAuthApi()
                         .Auth(new LoginApi.UserPlain(RepoApplication.getUsername(),
                                 RepoApplication.getPassword())).execute();
                 if (tokenResponse.code() == 200 && tokenResponse.isSuccessful() && tokenResponse.body() != null) {
                     RepoApplication.setToken(tokenResponse.body().token);
+                    numResponse = numCall.execute();
+                    if(!numResponse.isSuccessful())
+                        return Result.retry();
                 } else return Result.failure();
-                return Result.retry();
             }
             //Log.d(TAG, "" + RepoApplication.getCurrentSyncNumber() + " " + numResponse.body().syncNumber);
             if (numResponse.body() != null && numResponse.isSuccessful()) {
