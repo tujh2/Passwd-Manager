@@ -44,6 +44,7 @@ import com.wnp.passwdmanager.Network.SyncWorker;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 
@@ -101,13 +102,16 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         MainActivity activity = ((MainActivity) getActivity());
         addButton.setOnClickListener(v ->
                 activity.navigateToFragment(new EditFragment(), true));
-        WorkManager.getInstance()
-                .getWorkInfoByIdLiveData(((MainActivity) getActivity()).getDecryptRequest().getId())
-                .observe(getViewLifecycleOwner(), workInfo -> {
-                    if(workInfo.getState().isFinished()) {
-                        refreshView();
-                    }
-        });
+        UUID decryptID = activity.getDecryptRequestID();
+        if(decryptID != null) {
+            WorkManager.getInstance()
+                    .getWorkInfoByIdLiveData(decryptID)
+                    .observe(getViewLifecycleOwner(), workInfo -> {
+                        if (workInfo.getState().isFinished()) {
+                            refreshView();
+                        }
+                    });
+        }
     }
 
     @Override

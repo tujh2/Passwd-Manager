@@ -17,6 +17,7 @@ import java.util.Objects;
 
 @SuppressWarnings("WeakerAccess")
 public class DefaultSettingsFragment extends Fragment {
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

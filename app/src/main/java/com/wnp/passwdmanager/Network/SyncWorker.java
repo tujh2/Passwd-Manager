@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Executor;
@@ -30,6 +31,7 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import okhttp3.MediaType;
@@ -57,18 +59,21 @@ public class SyncWorker extends Worker {
                     .getDatabasePath("userPasswords.db").getAbsolutePath();
             String encrDB = getApplicationContext().getFilesDir().getAbsolutePath() + File.separator + "encryptedDB";
 
-            Call<GetPostDbApi.syncNumResponse> numCall = application.getmApi()
+            String token = RepoApplication.getToken();
+            Response<GetPostDbApi.syncNumResponse> numResponse = application.getmApi()
                     .getDatabaseApi()
-                    .getSyncNumber("Bearer " + RepoApplication.getToken());
-            Response<GetPostDbApi.syncNumResponse> numResponse = numCall.execute();
+                    .getSyncNumber(token).execute();
             if (numResponse.code() == 401) {
                 Response<LoginApi.Response> tokenResponse = application.getmApi().getmAuthApi()
                         .Auth(new LoginApi.UserPlain(RepoApplication.getUsername(),
                                 RepoApplication.getPassword())).execute();
                 if (tokenResponse.code() == 200 && tokenResponse.isSuccessful() && tokenResponse.body() != null) {
                     RepoApplication.setToken(tokenResponse.body().token);
-                    numResponse = numCall.execute();
-                    if(!numResponse.isSuccessful())
+                    token = tokenResponse.body().token;
+                    numResponse = application.getmApi()
+                            .getDatabaseApi()
+                            .getSyncNumber(token).execute();
+                    if(!numResponse.isSuccessful() && numResponse.code() != 200)
                         return Result.retry();
                 } else return Result.failure();
             }
@@ -76,37 +81,40 @@ public class SyncWorker extends Worker {
             if (numResponse.body() != null && numResponse.isSuccessful()) {
                 int currentSyncNumber = RepoApplication.getCurrentSyncNumber();
                 if (currentSyncNumber < numResponse.body().syncNumber) {
-                    Response<ResponseBody> response = RepoApplication.from(getApplicationContext()).getmApi().getDatabaseApi()
-                            .getPasswordsDatabase("Bearer " + RepoApplication.getToken()).execute();
+                    Response<ResponseBody> response = application.getmApi().getDatabaseApi()
+                            .getPasswordsDatabase(token).execute();
                     if (response.isSuccessful() && response.code() == 200 && response.body() != null) {
                         if (writeResponseBodyToDisk(response.body(), encrDB)) {
                             Log.d(TAG, "db has been received");
                             RepoApplication.setCurrentSyncNumber(numResponse.body().syncNumber);
-                            decryptDb(encrDB, fileDecr, application.getEncryptionKey());
+                            decryptDb(encrDB, fileDecr, RepoApplication.getEncryptionKey());
                             return Result.success();
                         }
                     }
                 } else if (currentSyncNumber > numResponse.body().syncNumber) {
-                    encryptDb(fileDecr, encrDB, application.getEncryptionKey());
+                    encryptDb(fileDecr, encrDB, RepoApplication.getEncryptionKey());
                     File file = new File(encrDB);
                     RequestBody requestFile = RequestBody.create(file, MediaType.parse("*/*"));
                     MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
                     RequestBody filename = RequestBody.create(file.getName(), MediaType.parse("text/plain"));
-                    Response<GetPostDbApi.ResponseOnPush> responseBody = RepoApplication.from(getApplicationContext()).getmApi()
+                    Response<GetPostDbApi.ResponseOnPush> responseBody = application.getmApi()
                             .getDatabaseApi()
-                            .pushPasswordsDatabase("Bearer " + RepoApplication.getToken(), body, filename).execute();
+                            .pushPasswordsDatabase(token, body, filename).execute();
                     if (responseBody.isSuccessful() && responseBody.body() != null) {
                         if (responseBody.body().status.equals("uploaded")) {
-                            Log.d(TAG, "pushToServer success");
-                            return Result.success();
+                            GetPostDbApi.syncNumResponse sendNumber = new GetPostDbApi.syncNumResponse(currentSyncNumber);
+                            Log.d(TAG, currentSyncNumber + " " + numResponse.body().syncNumber);
+                            Response<ResponseBody> requestSetSyncNumber = application.getmApi()
+                                     .getDatabaseApi().setSyncNumber(token, sendNumber).execute();
+                            if(requestSetSyncNumber.isSuccessful()) {
+                                Log.d(TAG, "pushToServer success");
+                                return Result.success();
+                            }
                         }
                     }
                 } else return Result.success();
             }
-        } catch (IOException |
-                NoSuchAlgorithmException |
-                InvalidKeyException |
-                NoSuchPaddingException e) {
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
         return Result.failure();
@@ -161,12 +169,12 @@ public class SyncWorker extends Worker {
     }
 
     private static void encryptDb(String file, String fileEncrypted, String key)
-            throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+            throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
         FileInputStream fis = new FileInputStream(file);
         FileOutputStream fos = new FileOutputStream(fileEncrypted);
         SecretKeySpec sks = new SecretKeySpec(key.getBytes(), "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, sks);
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.ENCRYPT_MODE, sks, new IvParameterSpec("asdfghjkqwertyui".getBytes()));
         CipherOutputStream cos = new CipherOutputStream(fos, cipher);
         int b;
         byte[] d = new byte[8];
@@ -180,12 +188,12 @@ public class SyncWorker extends Worker {
     }
 
     private static void decryptDb(String fileEncrypted, String fileDecrypted, String key)
-            throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+            throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
         FileInputStream fis = new FileInputStream(fileEncrypted);
         FileOutputStream fos = new FileOutputStream(fileDecrypted);
         SecretKeySpec sks = new SecretKeySpec(key.getBytes(), "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, sks);
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.DECRYPT_MODE, sks, new IvParameterSpec("asdfghjkqwertyui".getBytes()));
         CipherInputStream cis = new CipherInputStream(fis, cipher);
         int b;
         byte[] d = new byte[8];

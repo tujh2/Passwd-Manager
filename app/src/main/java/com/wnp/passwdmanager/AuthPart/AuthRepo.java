@@ -15,7 +15,7 @@ import com.wnp.passwdmanager.RepoApplication;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -26,6 +26,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import retrofit2.Call;
@@ -67,7 +68,7 @@ public class AuthRepo {
         LoginApi api = mApiRepo.getmAuthApi();
         String encryptionKey = generateKey();
         String passwordHash = getHash(getHash(password));
-        String encryptedKey = encryptKey(password, encryptionKey);
+        String encryptedKey = encryptKey(encryptionKey, password);
         api.registarte(new LoginApi.RegUserPlain(username, passwordHash, encryptedKey)).enqueue(new Callback<LoginApi.Response>() {
             @Override
             public void onResponse(@NotNull Call<LoginApi.Response> call, @NotNull Response<LoginApi.Response> response) {
@@ -161,12 +162,12 @@ public class AuthRepo {
     private String encryptKey(String keyForEncrypt, String encryptionKey) {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
-            SecretKeySpec sks = new SecretKeySpec(digest.digest(encryptionKey.getBytes()), "AES/CBC/PKCS5PADDING");
-            Cipher cipher = Cipher.getInstance("AES");
-            cipher.init(Cipher.ENCRYPT_MODE, sks);
-            byte[] encryptedKey = cipher.doFinal(keyForEncrypt.getBytes());
+            SecretKeySpec sks = new SecretKeySpec(digest.digest(encryptionKey.getBytes()), "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, sks, new IvParameterSpec("asdfghjkqwertyui".getBytes()));
+            byte[] encryptedKey = cipher.doFinal(fromHexString(keyForEncrypt));
             return bytesToHex(encryptedKey);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
         return null;
@@ -176,11 +177,11 @@ public class AuthRepo {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
             SecretKeySpec sks = new SecretKeySpec(digest.digest(encryptionKey.getBytes()), "AES");
-            Cipher cipher = Cipher.getInstance("AES");
-            cipher.init(Cipher.DECRYPT_MODE, sks);
-            byte[] decryptedKey = cipher.doFinal(keyForDecrypt.getBytes());
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, sks, new IvParameterSpec("asdfghjkqwertyui".getBytes()));
+            byte[] decryptedKey = cipher.doFinal(fromHexString(keyForDecrypt));
             return bytesToHex(decryptedKey);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
         return null;
@@ -188,13 +189,35 @@ public class AuthRepo {
 
     private String bytesToHex(byte[] bytes) {
         Log.d("AuthRepo", "encr key length " + bytes.length);
-        StringBuffer hexString = new StringBuffer();
+        /*StringBuilder strbuf = new StringBuilder(bytes.length * 2);
+        int i;
+
+        for (i = 0; i < bytes.length; i++) {
+            if (((int) bytes[i] & 0xff) < 0x10) {
+                strbuf.append("0");
+            }
+
+            strbuf.append(Long.toString((int) bytes[i] & 0xff, 16));
+        }
+
+        return strbuf.toString();*/
+        StringBuilder hexString = new StringBuilder();
         for (byte aByte : bytes) {
             String hex = Integer.toHexString(0xff & aByte);
             if (hex.length() == 1) hexString.append('0');
             hexString.append(hex);
         }
         return hexString.toString();
+    }
+
+    private byte[] fromHexString(String s) {
+        byte[] val = new byte[s.length() / 2];
+        for (int i = 0; i < val.length; i++) {
+            int index = i * 2;
+            int j = Integer.parseInt(s.substring(index, index + 2), 16);
+            val[i] = (byte) j;
+        }
+        return val;
     }
 
     enum AuthProgress {

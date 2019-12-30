@@ -81,7 +81,7 @@ public class RepoApplication extends Application {
     }
 
     public static void setToken(String token) {
-        applicationSettings.edit().putString(TOKEN, token).apply();
+        applicationSettings.edit().putString(TOKEN, "Bearer " + token).apply();
     }
 
     public static void setDefaultPin(String pin) {

@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -22,7 +23,10 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import okhttp3.Response;
 
 public class EncryptionWorker extends Worker {
 
@@ -38,6 +42,8 @@ public class EncryptionWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        if(RepoApplication.getCurrentSyncNumber() == 0)
+            return Result.success();
         RepoApplication application = RepoApplication.from(getApplicationContext());
         application.getPasswordsRepository().close();
 
@@ -53,10 +59,7 @@ public class EncryptionWorker extends Worker {
                     encryptDb(file, encrDB, encryptionKey);
                     Log.d(TAG, "encrypted");
                     return Result.success();
-                } catch (IOException |
-                        NoSuchAlgorithmException |
-                        NoSuchPaddingException |
-                        InvalidKeyException e) {
+                } catch (IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
                     e.printStackTrace();
                 }
             } else if (inputData.equals(DECRYPT)) {
@@ -64,10 +67,7 @@ public class EncryptionWorker extends Worker {
                     decryptDb(encrDB, file, encryptionKey);
                     Log.d(TAG, "decrypted");
                     return Result.success();
-                } catch (IOException |
-                        NoSuchAlgorithmException |
-                        NoSuchPaddingException |
-                        InvalidKeyException e) {
+                } catch (IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
                     e.printStackTrace();
                 }
             }
@@ -76,12 +76,12 @@ public class EncryptionWorker extends Worker {
     }
 
     private static void encryptDb(String file, String fileEncrypted, String key)
-            throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+            throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
         FileInputStream fis = new FileInputStream(file);
         FileOutputStream fos = new FileOutputStream(fileEncrypted);
         SecretKeySpec sks = new SecretKeySpec(key.getBytes(), "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, sks);
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.ENCRYPT_MODE, sks, new IvParameterSpec("asdfghjkqwertyui".getBytes()));
         CipherOutputStream cos = new CipherOutputStream(fos, cipher);
         int b;
         byte[] d = new byte[8];
@@ -96,12 +96,12 @@ public class EncryptionWorker extends Worker {
     }
 
     private static void decryptDb(String fileEncrypted, String fileDecrypted, String key)
-            throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+            throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
         FileInputStream fis = new FileInputStream(fileEncrypted);
         FileOutputStream fos = new FileOutputStream(fileDecrypted);
         SecretKeySpec sks = new SecretKeySpec(key.getBytes(), "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, sks);
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.DECRYPT_MODE, sks, new IvParameterSpec("asdfghjkqwertyui".getBytes()));
         CipherInputStream cis = new CipherInputStream(fis, cipher);
         int b;
         byte[] d = new byte[8];

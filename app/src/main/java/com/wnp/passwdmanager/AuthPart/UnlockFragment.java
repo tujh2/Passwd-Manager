@@ -10,7 +10,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
+import com.wnp.passwdmanager.Database.EncryptionWorker;
 import com.wnp.passwdmanager.MainActivity;
 import com.wnp.passwdmanager.MainFragment;
 import com.wnp.passwdmanager.R;
@@ -23,13 +27,20 @@ public class UnlockFragment extends Fragment {
         View view = inflater.inflate(R.layout.login_unlcok_fragment, container, false);
         EditText pass = view.findViewById(R.id.unlock_pass);
         view.findViewById(R.id.unlock_button).setOnClickListener(v -> {
-            if(RepoApplication.getPin().equals(pass.getText().toString()) ) {
+            if (RepoApplication.getPin().equals(pass.getText().toString())) {
                 MainActivity activity = (MainActivity) getActivity();
 //                AuthActivity authActivity = (AuthActivity)getActivity();
-                if(activity != null)
+                if (activity != null) {
+                    Data data = new Data.Builder()
+                            .putString(EncryptionWorker.TYPE, EncryptionWorker.DECRYPT).build();
+                    OneTimeWorkRequest decryptRequest = new OneTimeWorkRequest.
+                            Builder(EncryptionWorker.class)
+                            .setInputData(data).build();
+                    WorkManager.getInstance().enqueue(decryptRequest);
+                    activity.setDecryptRequestID(decryptRequest.getId());
                     activity.navigateToFragment(new MainFragment(), false);
-            }
-            else
+                }
+            } else
                 Toast.makeText(getContext(), R.string.wrong_pin, Toast.LENGTH_SHORT).show();
         });
         return view;
