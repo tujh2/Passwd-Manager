@@ -4,16 +4,9 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.Operation;
-import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.wnp.passwdmanager.Database.EncryptionWorker;
 import com.wnp.passwdmanager.RepoApplication;
 
 import java.io.File;
@@ -25,7 +18,6 @@ import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.Executor;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -38,7 +30,6 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
 import retrofit2.Response;
 
 public class SyncWorker extends Worker {
@@ -67,13 +58,13 @@ public class SyncWorker extends Worker {
                 Response<LoginApi.Response> tokenResponse = application.getmApi().getmAuthApi()
                         .Auth(new LoginApi.UserPlain(RepoApplication.getUsername(),
                                 RepoApplication.getPassword())).execute();
-                if (tokenResponse.code() == 200 && tokenResponse.isSuccessful() && tokenResponse.body() != null) {
+                if (tokenResponse.code() == 200 && tokenResponse.body() != null) {
                     RepoApplication.setToken(tokenResponse.body().token);
-                    token = tokenResponse.body().token;
+                    token = RepoApplication.getToken();
                     numResponse = application.getmApi()
                             .getDatabaseApi()
                             .getSyncNumber(token).execute();
-                    if(!numResponse.isSuccessful() && numResponse.code() != 200)
+                    if(numResponse.code() != 200)
                         return Result.retry();
                 } else return Result.failure();
             }

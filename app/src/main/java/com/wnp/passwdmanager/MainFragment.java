@@ -14,30 +14,21 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
-import androidx.work.Data;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.wnp.passwdmanager.Database.EncryptionWorker;
 import com.wnp.passwdmanager.Database.PasswordEntity;
 import com.wnp.passwdmanager.Network.SyncWorker;
 
@@ -45,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 
 public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -71,7 +61,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 Objects.requireNonNull(getActivity()).finishAndRemoveTask();
                 return true;
             case R.id.settings_option:
-                ((MainActivity)getActivity()).navigateToFragment(new settings_fragment(), true);
+                ((MainActivity) Objects.requireNonNull(getActivity())).navigateToFragment(new settings_fragment(), true);
                 return false;
             default:
                 break;

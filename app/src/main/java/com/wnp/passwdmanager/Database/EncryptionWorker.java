@@ -5,7 +5,6 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -26,14 +25,12 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import okhttp3.Response;
-
 public class EncryptionWorker extends Worker {
 
     public static final String ENCRYPT = "ENCRYPT";
     public static final String DECRYPT = "DECRYPT";
     public static final String TYPE = "WORKER_TYPE";
-    public static final String TAG = "ENCRYPTION";
+    private static final String TAG = "ENCRYPTION";
 
     public EncryptionWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -75,6 +72,7 @@ public class EncryptionWorker extends Worker {
         return Result.failure();
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static void encryptDb(String file, String fileEncrypted, String key)
             throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
         FileInputStream fis = new FileInputStream(file);

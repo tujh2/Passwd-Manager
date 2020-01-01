@@ -2,7 +2,6 @@ package com.wnp.passwdmanager.AuthPart;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -189,18 +188,6 @@ public class AuthRepo {
 
     private String bytesToHex(byte[] bytes) {
         Log.d("AuthRepo", "encr key length " + bytes.length);
-        /*StringBuilder strbuf = new StringBuilder(bytes.length * 2);
-        int i;
-
-        for (i = 0; i < bytes.length; i++) {
-            if (((int) bytes[i] & 0xff) < 0x10) {
-                strbuf.append("0");
-            }
-
-            strbuf.append(Long.toString((int) bytes[i] & 0xff, 16));
-        }
-
-        return strbuf.toString();*/
         StringBuilder hexString = new StringBuilder();
         for (byte aByte : bytes) {
             String hex = Integer.toHexString(0xff & aByte);

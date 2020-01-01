@@ -7,12 +7,8 @@ import android.util.Log;
 
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
 
 import com.wnp.passwdmanager.AuthPart.AuthRepo;
-import com.wnp.passwdmanager.Database.EncryptionWorker;
 import com.wnp.passwdmanager.Database.PasswordsRepository;
 import com.wnp.passwdmanager.Network.ApiRepo;
 
@@ -25,12 +21,13 @@ public class RepoApplication extends Application {
     private static final String SYNCNUM = "syncNumber";
     private static final String LOGIN = "LOGIN";
     private static final String PASSWORD = "PASSWORD";
-    public static final String ENCRYPTKEY = "ENCRYPTKEY";
+    private static final String ENCRYPTKEY = "ENCRYPTKEY";
     private ApiRepo mApiRepo;
     private AuthRepo mAuthRepo;
     private PasswordsRepository passwordsRepository;
     private static final String SETTINGS = "settings";
     private static SharedPreferences applicationSettings;
+    private static RepoApplication INSTANCE;
 
     @Override
     public void onCreate() {
@@ -38,6 +35,7 @@ public class RepoApplication extends Application {
         mApiRepo = new ApiRepo();
         mAuthRepo = new AuthRepo(mApiRepo);
         passwordsRepository = new PasswordsRepository(this);
+        INSTANCE = this;
         try {
             String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
             applicationSettings = EncryptedSharedPreferences.create(SETTINGS, masterKeyAlias, this,
@@ -53,6 +51,10 @@ public class RepoApplication extends Application {
         super.onTerminate();
         Log.d("APP", "onTerminate");
         //passwordsRepository.close(this);
+    }
+
+    public static RepoApplication getApplication() {
+        return INSTANCE;
     }
 
     public static String getEncryptionKey() {
@@ -118,5 +120,15 @@ public class RepoApplication extends Application {
 
     public static RepoApplication from(Context context) {
         return (RepoApplication) context.getApplicationContext();
+    }
+
+    public void clearApplicationData() {
+        String packageName = getApplicationContext().getPackageName();
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            runtime.exec("pm clear " + packageName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
