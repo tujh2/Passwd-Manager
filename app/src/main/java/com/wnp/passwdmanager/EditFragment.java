@@ -19,24 +19,25 @@ import com.wnp.passwdmanager.Database.PasswordEntity;
 import java.util.Objects;
 
 public class EditFragment extends Fragment {
+    private static final String ITEM = "ITEM";
     private PasswordsViewModel passwordsViewModel;
     private PasswordEntity passwordCurrent;
 
     static EditFragment newInstance(PasswordEntity passwordEntity) {
         EditFragment fragment = new EditFragment();
-        fragment.setItem(passwordEntity);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(ITEM, passwordEntity);
+        fragment.setArguments(bundle);
         return fragment;
-    }
-
-    private void setItem(PasswordEntity passwordEntity) {
-        this.passwordCurrent = passwordEntity;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if(passwordCurrent != null)
+        if(getArguments() != null) {
             setHasOptionsMenu(true);
+            passwordCurrent = (PasswordEntity) getArguments().getSerializable(ITEM);
+        }
         return inflater.inflate(R.layout.password_edit_fragment, container, false);
     }
 
@@ -44,10 +45,22 @@ public class EditFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.delete_record_option) {
             passwordsViewModel.delete(passwordCurrent);
-            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStack();
+            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStack("MAIN", 0);
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void onStop() {
+        if(getArguments() != null)
+            getArguments().putSerializable(ITEM, passwordCurrent);
+        else {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(ITEM, passwordCurrent);
+            setArguments(bundle);
+        }
+        super.onStop();
     }
 
     @Override

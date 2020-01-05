@@ -3,11 +3,13 @@ package com.wnp.passwdmanager;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,10 +27,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.work.Constraints;
+import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.wnp.passwdmanager.AuthPart.UnlockFragment;
+import com.wnp.passwdmanager.Database.EncryptionWorker;
 import com.wnp.passwdmanager.Database.PasswordEntity;
 import com.wnp.passwdmanager.Network.SyncWorker;
 
@@ -39,7 +44,6 @@ import java.util.UUID;
 
 
 public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
-    private static final String WORK_NAME = "singleSyncWorker";
     private PasswordListDataAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView recyclerView;
@@ -56,13 +60,20 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        MainActivity activity = (MainActivity)getActivity();
+        if(activity == null)
+            return false;
         switch (item.getItemId()) {
             case R.id.exit_option:
-                Objects.requireNonNull(getActivity()).finishAndRemoveTask();
+                activity.finishAndRemoveTask();
                 return true;
             case R.id.settings_option:
-                ((MainActivity) Objects.requireNonNull(getActivity())).navigateToFragment(new settings_fragment(), true);
-                return false;
+                activity.navigateToFragment(new settings_fragment(), "SETTINGS");
+                return true;
+            case R.id.lock_option:
+                activity.navigateToFragment(new UnlockFragment(), null);
+                recyclerView.setAdapter(null);
+                return true;
             default:
                 break;
         }
@@ -80,28 +91,21 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         super.onViewCreated(view, savedInstanceState);
 
         recyclerView = view.findViewById(R.id.passwordList);
-        mAdapter = new PasswordListDataAdapter();
+        mSwipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
+        addButton = view.findViewById(R.id.addItemButton);
+
+        if(mAdapter == null) {
+            mAdapter = new PasswordListDataAdapter();
+        }
         recyclerView.setAdapter(mAdapter);
         passwordsViewModel = new ViewModelProvider(Objects.requireNonNull(getActivity())).get(PasswordsViewModel.class);
 
-        mSwipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
-        addButton = view.findViewById(R.id.addItemButton);
         MainActivity activity = ((MainActivity) getActivity());
         addButton.setOnClickListener(v ->
-                activity.navigateToFragment(new EditFragment(), true));
-        UUID decryptID = activity.getDecryptRequestID();
-        if(decryptID != null) {
-            WorkManager.getInstance()
-                    .getWorkInfoByIdLiveData(decryptID)
-                    .observe(getViewLifecycleOwner(), workInfo -> {
-                        if (workInfo.getState().isFinished()) {
-                            refreshView();
-                        }
-                    });
-        }
+                activity.navigateToFragment(new EditFragment(), "EDIT"));
     }
 
     @Override
@@ -145,6 +149,38 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     }
 
     class PasswordListDataAdapter extends RecyclerView.Adapter<PasswordListViewHolder> {
+
+        @Override
+        public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+            super.onAttachedToRecyclerView(recyclerView);
+            Data data = new Data.Builder()
+                    .putString(EncryptionWorker.TYPE, EncryptionWorker.DECRYPT).build();
+            OneTimeWorkRequest decryptRequest = new OneTimeWorkRequest.
+                    Builder(EncryptionWorker.class)
+                    .setInputData(data).build();
+            WorkManager.getInstance().enqueue(decryptRequest);
+            WorkManager.getInstance()
+                    .getWorkInfoByIdLiveData(decryptRequest.getId())
+                    .observe(getViewLifecycleOwner(), workInfo -> {
+                        if (workInfo.getState().isFinished()) {
+                            refreshView();
+                        }
+                    });
+            Log.d(TAG, "ATTACHED TO RECYCLER VIEW");
+        }
+
+        @Override
+        public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+            super.onDetachedFromRecyclerView(recyclerView);
+            Log.d(TAG, "DETACHED FROM RECYCLER VIEW");
+            Data data = new Data.Builder()
+                    .putString(EncryptionWorker.TYPE, EncryptionWorker.ENCRYPT).build();
+            OneTimeWorkRequest encryptRequest = new OneTimeWorkRequest.
+                    Builder(EncryptionWorker.class)
+                    .setInputData(data).build();
+            WorkManager.getInstance().enqueue(encryptRequest);
+        }
+
         private List<PasswordEntity> mData;
 
         PasswordListDataAdapter() {
@@ -157,7 +193,37 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             View view = LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.pass_list_item, parent, false);
-            return new PasswordListViewHolder(view);
+            PasswordListViewHolder holder = new PasswordListViewHolder(view);
+            view.setOnClickListener(v -> {
+                int pos = holder.getAdapterPosition();
+                Log.d(TAG, "POSITION" + pos);
+                MainActivity activity = (MainActivity) getActivity();
+                if (activity != null && pos != RecyclerView.NO_POSITION) {
+                    PasswordEntity item = mData.get(pos);
+                    activity.navigateToFragment(PasswordViewFragment.newInstance(item), "VIEW");
+                }
+            });
+            view.findViewById(R.id.copy_but).setOnClickListener(v -> {
+                int pos = holder.getAdapterPosition();
+                if(pos != RecyclerView.NO_POSITION) {
+                    PasswordEntity item = mData.get(pos);
+                    Animator scale = ObjectAnimator.ofPropertyValuesHolder(v,
+                            PropertyValuesHolder.ofFloat(View.SCALE_X, 1, 1.5f, 1),
+                            PropertyValuesHolder.ofFloat(View.SCALE_Y, 1, 1.5f, 1));
+                    scale.setDuration(1000);
+                    scale.start();
+                    ClipData clipData = ClipData.newPlainText(null, item.getPassword());
+                    if (getActivity() != null) {
+                        ClipboardManager clipboardManager = (ClipboardManager) getActivity()
+                                .getSystemService(Context.CLIPBOARD_SERVICE);
+                        if (clipboardManager != null) {
+                            clipboardManager.setPrimaryClip(clipData);
+                            Toast.makeText(getContext(), "Copied", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            });
+            return holder;
         }
 
         @Override
@@ -165,32 +231,6 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             PasswordEntity item = mData.get(position);
             holder.urlView.setText(item.getURL());
             holder.domainView.setText(item.getDomain_name());
-            holder.itemView.setOnClickListener(v -> {
-                MainActivity activity = (MainActivity) getActivity();
-                if (activity != null) {
-                    activity.navigateToFragment(PasswordViewFragment.newInstance(item), true);
-                }
-            });
-            holder.itemView.setOnLongClickListener(v -> {
-                Log.d(TAG, "onLongClick");
-                return true;
-            });
-            holder.itemView.findViewById(R.id.copy_but).setOnClickListener(v -> {
-                Animator scale = ObjectAnimator.ofPropertyValuesHolder(v,
-                        PropertyValuesHolder.ofFloat(View.SCALE_X, 1, 1.5f, 1),
-                        PropertyValuesHolder.ofFloat(View.SCALE_Y, 1, 1.5f, 1));
-                scale.setDuration(1000);
-                scale.start();
-                ClipData clipData = ClipData.newPlainText(null, item.getPassword());
-                if (getActivity() != null) {
-                    ClipboardManager clipboardManager = (ClipboardManager) getActivity()
-                            .getSystemService(Context.CLIPBOARD_SERVICE);
-                    if (clipboardManager != null) {
-                        clipboardManager.setPrimaryClip(clipData);
-                        Toast.makeText(getContext(), "Copied", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
         }
 
         void setData(List<PasswordEntity> data) {
@@ -215,4 +255,21 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG, "DETACH");
+    }
+
+    @Override
+    public void onStop() {
+        Log.d(TAG, "onStop");
+        super.onStop();
+    }
 }

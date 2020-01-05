@@ -75,6 +75,11 @@ public class EncryptionWorker extends Worker {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private static void encryptDb(String file, String fileEncrypted, String key)
             throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
+        File f = new File(file);
+        if(!f.exists()) {
+            Log.d(TAG, "FILE NOT EXIST");
+            return;
+        }
         FileInputStream fis = new FileInputStream(file);
         FileOutputStream fos = new FileOutputStream(fileEncrypted);
         SecretKeySpec sks = new SecretKeySpec(key.getBytes(), "AES");
@@ -89,12 +94,14 @@ public class EncryptionWorker extends Worker {
         cos.flush();
         cos.close();
         fis.close();
-        File f = new File(file);
         f.delete();
     }
 
     private static void decryptDb(String fileEncrypted, String fileDecrypted, String key)
             throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
+        File file = new File(fileEncrypted);
+        if(file.exists())
+            return;
         FileInputStream fis = new FileInputStream(fileEncrypted);
         FileOutputStream fos = new FileOutputStream(fileDecrypted);
         SecretKeySpec sks = new SecretKeySpec(key.getBytes(), "AES");

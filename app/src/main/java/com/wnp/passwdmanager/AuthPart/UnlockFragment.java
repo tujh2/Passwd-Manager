@@ -31,14 +31,14 @@ public class UnlockFragment extends Fragment {
                 MainActivity activity = (MainActivity) getActivity();
 //                AuthActivity authActivity = (AuthActivity)getActivity();
                 if (activity != null) {
-                    Data data = new Data.Builder()
-                            .putString(EncryptionWorker.TYPE, EncryptionWorker.DECRYPT).build();
-                    OneTimeWorkRequest decryptRequest = new OneTimeWorkRequest.
-                            Builder(EncryptionWorker.class)
-                            .setInputData(data).build();
-                    WorkManager.getInstance().enqueue(decryptRequest);
-                    activity.setDecryptRequestID(decryptRequest.getId());
-                    activity.navigateToFragment(new MainFragment(), false);
+//                    Data data = new Data.Builder()
+//                            .putString(EncryptionWorker.TYPE, EncryptionWorker.DECRYPT).build();
+//                    OneTimeWorkRequest decryptRequest = new OneTimeWorkRequest.
+//                            Builder(EncryptionWorker.class)
+//                            .setInputData(data).build();
+//                    WorkManager.getInstance().enqueue(decryptRequest);
+//                    activity.setDecryptRequestID(decryptRequest.getId());
+                    activity.navigateToFragment(new MainFragment(), null);
                 }
             } else
                 Toast.makeText(getContext(), R.string.wrong_pin, Toast.LENGTH_SHORT).show();

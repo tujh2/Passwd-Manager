@@ -20,4 +20,5 @@
     <string name="wrong_pin">Неверный пин-код</string>
     <string name="key_icon">key_icon</string>
     <string name="exit_account">Exit account</string>
+    <string name="lock">LOCK</string>
 </resources>

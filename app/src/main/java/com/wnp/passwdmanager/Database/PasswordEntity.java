@@ -3,8 +3,10 @@ package com.wnp.passwdmanager.Database;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "passwordList")
-public class PasswordEntity {
+public class PasswordEntity implements Serializable {
     @PrimaryKey(autoGenerate = true)
     int ID;
 
@@ -18,16 +20,22 @@ public class PasswordEntity {
         this.password = password;
     }
 
+    int getId() {
+        return ID;
+    }
+
     public String getDomain_name() {
         return domain_name;
     }
-    public void setDomain_name( String domain_name) {
+
+    public void setDomain_name(String domain_name) {
         this.domain_name = domain_name;
     }
 
     public String getURL() {
         return URL;
     }
+
     public void setURL(String url) {
         this.URL = url;
     }
@@ -35,6 +43,7 @@ public class PasswordEntity {
     public String getUsername() {
         return username;
     }
+
     public void setUsername(String username) {
         this.username = username;
     }

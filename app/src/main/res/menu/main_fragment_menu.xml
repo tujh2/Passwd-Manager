@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">i
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/lock_option"
+        app:showAsAction="always"
+        android:icon="@drawable/lock_icon"
+        android:title="@string/lock"/>
     <item android:id="@+id/settings_option"
         android:title="@string/settings"/>
     <item android:id="@+id/exit_option"

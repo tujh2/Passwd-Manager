@@ -21,6 +21,11 @@ public abstract class AppDatabase extends RoomDatabase {
         return instance;
     }
 
+    @Override
+    public void close() {
+        super.close();
+    }
+
     private static AppDatabase create(Context context) {
         return Room.databaseBuilder(context,
                 AppDatabase.class,

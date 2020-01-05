@@ -3,31 +3,27 @@ package com.wnp.passwdmanager;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
-import com.wnp.passwdmanager.AuthPart.AuthActivity;
 import com.wnp.passwdmanager.AuthPart.UnlockFragment;
-import com.wnp.passwdmanager.Database.EncryptionWorker;
 
-import java.util.UUID;
+import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements FragmentNavigator {
+public class MainActivity extends AppCompatActivity implements FragmentNavigator, FragmentManager.OnBackStackChangedListener {
 
-    private UUID decryptRequestID;
+    private static final String TAG = "MAIN_ACTIVITY";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //navigateToFragment(new MainFragment(), false);
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
         if(savedInstanceState == null) {
-            navigateToFragment(new UnlockFragment(), false);
+            navigateToFragment(new UnlockFragment(), null);
         }
     }
 
@@ -36,31 +32,38 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
         super.onStart();
     }
 
-    public UUID getDecryptRequestID() {
-        return decryptRequestID;
-    }
-
-    public void setDecryptRequestID(UUID id) {
-       decryptRequestID =  id;
+    @Override
+    protected void onDestroy() {
+        if(isFinishing())
+            Log.d(TAG, "onDestroy");
+        super.onDestroy();
     }
 
     @Override
     protected void onStop() {
-        navigateToFragment(new UnlockFragment(), false);
-        Data data = new Data.Builder()
-                .putString(EncryptionWorker.TYPE, EncryptionWorker.ENCRYPT).build();
-        OneTimeWorkRequest encryptRequest = new OneTimeWorkRequest.
-                Builder(EncryptionWorker.class)
-                .setInputData(data).build();
-        WorkManager.getInstance().enqueue(encryptRequest);
+        if(isFinishing())
+            Log.d(TAG, "onStop");
         super.onStop();
     }
 
-    public void navigateToFragment(Fragment frag, boolean backStack) {
+    public void navigateToFragment(Fragment frag, String backStack) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager()
                 .beginTransaction().replace(R.id.mainFragment, frag);
-        if (backStack)
-            fragmentTransaction.addToBackStack(null);
+        if(backStack != null)
+            fragmentTransaction.addToBackStack(backStack);
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        boolean canGoBack = getSupportFragmentManager().getBackStackEntryCount()>0;
+        Objects.requireNonNull(getSupportActionBar())
+                .setDisplayHomeAsUpEnabled(canGoBack);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        getSupportFragmentManager().popBackStack();
+        return true;
     }
 }
