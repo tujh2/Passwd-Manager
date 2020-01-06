@@ -5,9 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
 import android.os.Bundle;
 import android.util.Log;
 
+import com.wnp.passwdmanager.AuthPart.DefaultSettingsFragment;
 import com.wnp.passwdmanager.AuthPart.UnlockFragment;
 
 import java.util.Objects;
@@ -22,8 +24,12 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
         setContentView(R.layout.activity_main);
         //navigateToFragment(new MainFragment(), false);
         getSupportFragmentManager().addOnBackStackChangedListener(this);
-        if(savedInstanceState == null) {
-            navigateToFragment(new UnlockFragment(), null);
+        if (savedInstanceState == null) {
+            if (RepoApplication.getPin().equals("")) {
+                navigateToFragment(new DefaultSettingsFragment(), null);
+            } else {
+                navigateToFragment(new UnlockFragment(), null);
+            }
         }
     }
 
@@ -34,14 +40,14 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
 
     @Override
     protected void onDestroy() {
-        if(isFinishing())
+        if (isFinishing())
             Log.d(TAG, "onDestroy");
         super.onDestroy();
     }
 
     @Override
     protected void onStop() {
-        if(isFinishing())
+        if (isFinishing())
             Log.d(TAG, "onStop");
         super.onStop();
     }
@@ -49,14 +55,14 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
     public void navigateToFragment(Fragment frag, String backStack) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager()
                 .beginTransaction().replace(R.id.mainFragment, frag);
-        if(backStack != null)
+        if (backStack != null)
             fragmentTransaction.addToBackStack(backStack);
         fragmentTransaction.commit();
     }
 
     @Override
     public void onBackStackChanged() {
-        boolean canGoBack = getSupportFragmentManager().getBackStackEntryCount()>0;
+        boolean canGoBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
         Objects.requireNonNull(getSupportActionBar())
                 .setDisplayHomeAsUpEnabled(canGoBack);
     }

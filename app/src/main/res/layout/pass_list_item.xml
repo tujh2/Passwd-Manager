@@ -2,28 +2,27 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="8dp"
-    android:paddingTop="4dp"
-    android:paddingEnd="8dp"
-    android:paddingBottom="4dp"
-    android:focusable="true"
     android:clickable="true"
-    android:foreground="?attr/selectableItemBackground">
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp">
 
     <ImageView
         android:id="@+id/image"
-        android:contentDescription="@string/key_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="8dp"
-        android:background="@drawable/key_icon" />
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/key_icon"
+        android:contentDescription="@string/key_icon" />
 
     <TextView
         android:id="@+id/domain_list_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:layout_toStartOf="@+id/copy_but"
         android:layout_toEndOf="@+id/image"
         android:fontFamily="sans-serif-medium"
@@ -36,8 +35,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/domain_list_item"
         android:layout_toStartOf="@+id/copy_but"
-        android:textColor="@android:color/darker_gray"
         android:layout_toEndOf="@+id/image"
+        android:textColor="@android:color/darker_gray"
         android:textSize="14sp" />
 
 
@@ -49,14 +48,14 @@
         android:layout_centerVertical="true"
         android:layout_marginEnd="8dp"
         android:background="@drawable/ic_copy_icon"
-        android:focusable="true"
         android:clickable="true"
-        android:foreground="?attr/selectableItemBackground"/>
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground" />
 
     <View
         android:layout_width="wrap_content"
         android:layout_height="1dp"
         android:layout_below="@+id/url_list_item"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:background="@android:color/darker_gray" />
 </RelativeLayout>

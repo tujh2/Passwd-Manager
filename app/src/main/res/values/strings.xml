@@ -20,4 +20,18 @@
     <string name="key_icon">key_icon</string>
     <string name="exit_account">Exit account</string>
     <string name="lock">LOCK</string>
+    <string name="enable_fingerprint_authentication">Enable fingerprint authentication</string>
+    <string name="fingerprint_title">Fingerprint authentication</string>
+    <string name="fingerprint_negative_button">Cancel</string>
+    <string name="change_pin">Change pin</string>
+    <string name="url_icon" translatable="false">url_icon</string>
+    <string name="password_icon" translatable="false">password_icon</string>
+    <string name="username_icon" translatable="false">username_icon</string>
+    <string name="OK" translatable="false">OK</string>
+    <string name="error">Error</string>
+    <string name="errorLoginMsg">Check network connection</string>
+    <string name="failedLoginMsg">Wrong login or password</string>
+    <string name="successLogin">Login success</string>
+    <string name="failedRegMsg">User exists</string>
+    <string name="successReg">Registration success</string>
 </resources>

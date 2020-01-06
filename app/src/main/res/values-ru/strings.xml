@@ -18,7 +18,17 @@
     <string name="exit">Выход</string>
     <string name="settings">Настройки</string>
     <string name="wrong_pin">Неверный пин-код</string>
-    <string name="key_icon">key_icon</string>
-    <string name="exit_account">Exit account</string>
-    <string name="lock">LOCK</string>
+    <string name="key_icon">ключ-иконка</string>
+    <string name="exit_account">Выйти из аккаунта</string>
+    <string name="lock">Заблокировать</string>
+    <string name="enable_fingerprint_authentication">Включить разблокировку по отпечатку</string>
+    <string name="fingerprint_title">Разблокировка по отпечатку</string>
+    <string name="fingerprint_negative_button">Отмена</string>
+    <string name="change_pin">Изменить пин-код</string>
+    <string name="error">Ошибка</string>
+    <string name="errorLoginMsg">Проверьте соединение с интернетом</string>
+    <string name="failedLoginMsg">Неправильный логин или пароль</string>
+    <string name="successLogin">Успешная авторизация</string>
+    <string name="failedRegMsg">Пользователь существует</string>
+    <string name="successReg">Успешная регистрация</string>
 </resources>

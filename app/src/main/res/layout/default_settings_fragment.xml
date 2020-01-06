@@ -1,20 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content" android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:layout_gravity="center">
+
+
     <EditText
         android:id="@+id/pin"
-        android:hint="@string/default_pin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="textPassword"
+        android:layout_centerHorizontal="true"
         android:ems="10"
-        android:importantForAutofill="no" />
+        android:hint="@string/default_pin"
+        android:importantForAutofill="no"
+        android:inputType="textPassword" />
+
+    <Switch
+        android:id="@+id/fingerprint_switch"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/pin"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="@string/enable_fingerprint_authentication" />
+
     <Button
         android:id="@+id/finish_but"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/finish_setup"
-        android:layout_below="@+id/pin"
-        android:layout_centerHorizontal="true"/>
+        android:layout_below="@+id/fingerprint_switch"
+        android:layout_centerHorizontal="true"
+        android:text="@string/finish_setup" />
 </RelativeLayout>

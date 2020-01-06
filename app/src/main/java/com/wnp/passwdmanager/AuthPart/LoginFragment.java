@@ -1,5 +1,7 @@
 package com.wnp.passwdmanager.AuthPart;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,23 +34,35 @@ public class LoginFragment extends Fragment {
         EditText user = view.findViewById(R.id.username);
         EditText pass = view.findViewById(R.id.password);
         Button loginBtm = view.findViewById(R.id.login_button);
+        AlertDialog alertError = new AlertDialog.Builder(getContext())
+                .setTitle(R.string.error)
+                .setCancelable(false)
+                .setNegativeButton(R.string.OK, (dialog, which) -> dialog.cancel())
+                .setMessage(R.string.errorLoginMsg)
+                .create();
+
+        AlertDialog alertFailed = new AlertDialog.Builder(getContext())
+                .setTitle(R.string.error)
+                .setCancelable(false)
+                .setNegativeButton(R.string.OK, (dialog, which) -> dialog.cancel())
+                .setMessage(R.string.failedLoginMsg).create();
 
         loginModel.getProgress().observe(getViewLifecycleOwner(), userState -> {
             switch (userState) {
                 case LOGIN_FAILED:
                     loginBtm.setEnabled(true);
-                    Toast.makeText(getContext(), "LOGIN FAILED", Toast.LENGTH_SHORT).show();
+                    alertFailed.show();
                     break;
                 case LOGIN_ERROR:
                     loginBtm.setEnabled(true);
-                    Toast.makeText(getContext(), "LOGIN ERROR", Toast.LENGTH_SHORT).show();
+                    alertError.show();
                     break;
                 case LOGIN_IN_PROGRESS:
                     loginBtm.setEnabled(false);
                     break;
                 case LOGIN_SUCCESS:
-                    Toast.makeText(getContext(), "Success Login", Toast.LENGTH_SHORT).show();
-                    ((AuthActivity)getActivity()).navigateToFragment(new DefaultSettingsFragment(), true);
+                    Toast.makeText(getContext(), R.string.successLogin, Toast.LENGTH_SHORT).show();
+                    ((AuthActivity)getActivity()).switchActivity();
                     break;
 
                 default: loginBtm.setEnabled(true); break;

@@ -16,7 +16,7 @@ public class UserInfoViewModel extends AndroidViewModel  {
 
     //LoginData mLastLoginData = new LoginData("", "");
     private final MediatorLiveData<UserState> mUserState = new MediatorLiveData<>();
-    public LiveData<UserState> getProgress() { return  mUserState; }
+    LiveData<UserState> getProgress() { return  mUserState; }
 
     public UserInfoViewModel(@NonNull Application application) {
         super(application);

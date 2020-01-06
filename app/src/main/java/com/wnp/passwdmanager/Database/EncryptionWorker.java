@@ -99,7 +99,7 @@ public class EncryptionWorker extends Worker {
 
     private static void decryptDb(String fileEncrypted, String fileDecrypted, String key)
             throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
-        File file = new File(fileEncrypted);
+        File file = new File(fileDecrypted);
         if(file.exists())
             return;
         FileInputStream fis = new FileInputStream(fileEncrypted);

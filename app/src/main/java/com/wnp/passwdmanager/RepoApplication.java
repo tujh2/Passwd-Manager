@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 public class RepoApplication extends Application {
+    public static final String IS_FINGERPRINT_ENABLED = "IS_FINGERPRINT_ENABLED";
     private static final String TOKEN = "token";
     private static final String PIN = "pin";
     private static final String SYNCNUM = "syncNumber";
@@ -55,6 +56,14 @@ public class RepoApplication extends Application {
 
     public static RepoApplication getApplication() {
         return INSTANCE;
+    }
+
+    public static void setFingerprintStatus(boolean fingerprint) {
+        applicationSettings.edit().putBoolean(IS_FINGERPRINT_ENABLED, fingerprint).apply();
+    }
+
+    public static boolean isFingerPrintEnabled() {
+        return applicationSettings.getBoolean(IS_FINGERPRINT_ENABLED, false);
     }
 
     public static String getEncryptionKey() {

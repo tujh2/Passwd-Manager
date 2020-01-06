@@ -268,6 +268,15 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        if(isHidden()) {
+            Log.d(TAG, "onRemoving");
+            recyclerView.setAdapter(null);
+        }
+    }
+
+    @Override
     public void onStop() {
         Log.d(TAG, "onStop");
         super.onStop();
