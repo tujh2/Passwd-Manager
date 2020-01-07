@@ -22,7 +22,7 @@
     <string name="lock">LOCK</string>
     <string name="enable_fingerprint_authentication">Enable fingerprint authentication</string>
     <string name="fingerprint_title">Fingerprint authentication</string>
-    <string name="fingerprint_negative_button">Cancel</string>
+    <string name="negative_button">Cancel</string>
     <string name="change_pin">Change pin</string>
     <string name="url_icon" translatable="false">url_icon</string>
     <string name="password_icon" translatable="false">password_icon</string>
@@ -34,4 +34,9 @@
     <string name="successLogin">Login success</string>
     <string name="failedRegMsg">User exists</string>
     <string name="successReg">Registration success</string>
+    <string name="enter_new_pin">Enter new pin</string>
+    <string name="enter_old_pin">Enter old pin</string>
+    <string name="failedChangePin">Wrong current pin</string>
+    <string name="successPinChanged">Pin changed successfully</string>
+    <string name="changing_pin">Changing pin</string>
 </resources>

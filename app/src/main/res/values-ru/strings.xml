@@ -23,7 +23,7 @@
     <string name="lock">Заблокировать</string>
     <string name="enable_fingerprint_authentication">Включить разблокировку по отпечатку</string>
     <string name="fingerprint_title">Разблокировка по отпечатку</string>
-    <string name="fingerprint_negative_button">Отмена</string>
+    <string name="negative_button">Отмена</string>
     <string name="change_pin">Изменить пин-код</string>
     <string name="error">Ошибка</string>
     <string name="errorLoginMsg">Проверьте соединение с интернетом</string>
@@ -31,4 +31,9 @@
     <string name="successLogin">Успешная авторизация</string>
     <string name="failedRegMsg">Пользователь существует</string>
     <string name="successReg">Успешная регистрация</string>
+    <string name="enter_new_pin">Введите новый пин-код</string>
+    <string name="enter_old_pin">Введите старый пин-код</string>
+    <string name="failedChangePin">Введен неверный текущий пин-код</string>
+    <string name="successPinChanged">Пин-код изменен успешно</string>
+    <string name="changing_pin">Изменение пин-кода</string>
 </resources>

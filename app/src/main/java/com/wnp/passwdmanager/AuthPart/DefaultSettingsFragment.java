@@ -69,7 +69,7 @@ public class DefaultSettingsFragment extends Fragment {
                     final BiometricPrompt biometricPrompt = new BiometricPrompt(this, executor, callback);
                     final BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
                             .setTitle(getString(R.string.fingerprint_title))
-                            .setNegativeButtonText(getString(R.string.fingerprint_negative_button))
+                            .setNegativeButtonText(getString(R.string.negative_button))
                             .build();
                     biometricPrompt.authenticate(promptInfo);
                 }

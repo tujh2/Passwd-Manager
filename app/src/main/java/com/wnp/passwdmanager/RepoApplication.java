@@ -28,6 +28,7 @@ public class RepoApplication extends Application {
     private PasswordsRepository passwordsRepository;
     private static final String SETTINGS = "settings";
     private static SharedPreferences applicationSettings;
+    public boolean isLocked;
     private static RepoApplication INSTANCE;
 
     @Override

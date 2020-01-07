@@ -18,6 +18,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -66,16 +67,17 @@ public class AuthRepo {
         Log.d("AuthRepo", "Started NetworkLogin");
         LoginApi api = mApiRepo.getmAuthApi();
         String encryptionKey = generateKey();
-        String passwordHash = getHash(getHash(password));
+        String passwordHash = getHash(Objects.requireNonNull(getHash(password)));
         String encryptedKey = encryptKey(encryptionKey, password);
+        assert passwordHash != null;
+        assert encryptedKey != null;
         api.registarte(new LoginApi.RegUserPlain(username, passwordHash, encryptedKey)).enqueue(new Callback<LoginApi.Response>() {
             @Override
             public void onResponse(@NotNull Call<LoginApi.Response> call, @NotNull Response<LoginApi.Response> response) {
                 Log.d("AuthRepo", "regonResponse" + response.code());
-                if (response.isSuccessful() && response.body() != null && response.code() == 200) {
+                if (response.body() != null && response.code() == 200) {
                     Log.d("AuthRepo", "REG " + response.body().token);
                     RepoApplication.setCurrentSyncNumber(0);
-                    Log.d("AuthRepo", encryptionKey);
                     RepoApplication.setUsername(username);
                     RepoApplication.setPassword(passwordHash);
                     RepoApplication.setEncryptionKey(encryptionKey);
@@ -112,7 +114,8 @@ public class AuthRepo {
                        @NonNull final String password) {
         Log.d("AuthRepo", "Started NetworkLogin");
         LoginApi api = mApiRepo.getmAuthApi();
-        api.Auth(new LoginApi.UserPlain(username, getHash(getHash(password)))).enqueue(new Callback<LoginApi.Response>() {
+        api.Auth(new LoginApi.UserPlain(username, Objects.requireNonNull(getHash(Objects.requireNonNull(getHash(password))))))
+                .enqueue(new Callback<LoginApi.Response>() {
             @Override
             public void onResponse(@NotNull Call<LoginApi.Response> call, @NotNull Response<LoginApi.Response> response) {
                 Log.d("AuthRepo", "onResponse" + response.code());
@@ -122,7 +125,7 @@ public class AuthRepo {
                     RepoApplication.setToken(response.body().token);
                     RepoApplication.setEncryptionKey(decryptKey(response.body().encryptedKey, password));
                     RepoApplication.setUsername(username);
-                    RepoApplication.setPassword(getHash(getHash(password)));
+                    RepoApplication.setPassword(getHash(Objects.requireNonNull(getHash(password))));
                 } else
                     progress.postValue(AuthProgress.FAILED);
             }

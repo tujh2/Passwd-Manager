@@ -5,24 +5,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import android.os.Bundle;
 import android.util.Log;
 
 import com.wnp.passwdmanager.AuthPart.DefaultSettingsFragment;
 import com.wnp.passwdmanager.AuthPart.UnlockFragment;
+import com.wnp.passwdmanager.Database.EncryptionWorker;
 
+import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements FragmentNavigator, FragmentManager.OnBackStackChangedListener {
 
     private static final String TAG = "MAIN_ACTIVITY";
+    private static final String ENCRYPT_WORK_TAG = "ENCRYPT_TAG";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //navigateToFragment(new MainFragment(), false);
+        Log.d(TAG, "onCreate");
+
         getSupportFragmentManager().addOnBackStackChangedListener(this);
         if (savedInstanceState == null) {
             if (RepoApplication.getPin().equals("")) {
@@ -34,21 +43,33 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
     }
 
     @Override
+    protected void onResume() {
+        if(RepoApplication.from(getApplicationContext()).isLocked) {
+            navigateToFragment(new UnlockFragment(), null);
+        } else WorkManager.getInstance().cancelAllWorkByTag(ENCRYPT_WORK_TAG);
+        super.onResume();
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
     }
 
     @Override
     protected void onDestroy() {
-        if (isFinishing())
-            Log.d(TAG, "onDestroy");
         super.onDestroy();
     }
 
     @Override
     protected void onStop() {
-        if (isFinishing())
-            Log.d(TAG, "onStop");
+        Log.d(TAG, "onStop");
+        Data data = new Data.Builder()
+                .putString(EncryptionWorker.TYPE, EncryptionWorker.ENCRYPT).build();
+        OneTimeWorkRequest encryptRequest = new OneTimeWorkRequest.
+                Builder(EncryptionWorker.class)
+                .addTag(ENCRYPT_WORK_TAG)
+                .setInputData(data).build();
+        WorkManager.getInstance().enqueue(encryptRequest);
         super.onStop();
     }
 

@@ -51,6 +51,12 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     private PasswordsViewModel passwordsViewModel;
     private FloatingActionButton addButton;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -60,8 +66,8 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        MainActivity activity = (MainActivity)getActivity();
-        if(activity == null)
+        MainActivity activity = (MainActivity) getActivity();
+        if (activity == null)
             return false;
         switch (item.getItemId()) {
             case R.id.exit_option:
@@ -94,7 +100,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         mSwipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
         addButton = view.findViewById(R.id.addItemButton);
 
-        if(mAdapter == null) {
+        if (mAdapter == null) {
             mAdapter = new PasswordListDataAdapter();
         }
         recyclerView.setAdapter(mAdapter);
@@ -169,18 +175,6 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             Log.d(TAG, "ATTACHED TO RECYCLER VIEW");
         }
 
-        @Override
-        public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-            super.onDetachedFromRecyclerView(recyclerView);
-            Log.d(TAG, "DETACHED FROM RECYCLER VIEW");
-            Data data = new Data.Builder()
-                    .putString(EncryptionWorker.TYPE, EncryptionWorker.ENCRYPT).build();
-            OneTimeWorkRequest encryptRequest = new OneTimeWorkRequest.
-                    Builder(EncryptionWorker.class)
-                    .setInputData(data).build();
-            WorkManager.getInstance().enqueue(encryptRequest);
-        }
-
         private List<PasswordEntity> mData;
 
         PasswordListDataAdapter() {
@@ -205,7 +199,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             });
             view.findViewById(R.id.copy_but).setOnClickListener(v -> {
                 int pos = holder.getAdapterPosition();
-                if(pos != RecyclerView.NO_POSITION) {
+                if (pos != RecyclerView.NO_POSITION) {
                     PasswordEntity item = mData.get(pos);
                     Animator scale = ObjectAnimator.ofPropertyValuesHolder(v,
                             PropertyValuesHolder.ofFloat(View.SCALE_X, 1, 1.5f, 1),
@@ -264,16 +258,13 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.d(TAG, "DETACH");
+        Log.d(TAG, "onDetach");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if(isHidden()) {
-            Log.d(TAG, "onRemoving");
-            recyclerView.setAdapter(null);
-        }
+        Log.d(TAG, "onPause");
     }
 
     @Override

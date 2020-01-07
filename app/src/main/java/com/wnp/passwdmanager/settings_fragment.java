@@ -1,11 +1,16 @@
 package com.wnp.passwdmanager;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,6 +18,7 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -64,13 +70,41 @@ public class settings_fragment extends Fragment {
                     final BiometricPrompt biometricPrompt = new BiometricPrompt(this, executor, callback);
                     final BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
                             .setTitle(getString(R.string.fingerprint_title))
-                            .setNegativeButtonText(getString(R.string.fingerprint_negative_button))
+                            .setNegativeButtonText(getString(R.string.negative_button))
                             .build();
                     biometricPrompt.authenticate(promptInfo);
                 }
             } else {
                 RepoApplication.setFingerprintStatus(false);
             }
+        });
+
+        view.findViewById(R.id.change_pin_button).setOnClickListener(v -> {
+            AlertDialog alertFailed = new AlertDialog.Builder(getContext())
+                    .setTitle(R.string.error)
+                    .setCancelable(false)
+                    .setNegativeButton(R.string.OK, (dialog, which) -> dialog.cancel())
+                    .setMessage(R.string.failedChangePin).create();
+
+            @SuppressLint("InflateParams")
+            View alertView = getLayoutInflater().inflate(R.layout.change_pin_layout, null);
+            AlertDialog changePinAlert = new AlertDialog.Builder(getContext())
+                    .setTitle("Changing pin")
+                    .setView(alertView)
+                    .setNegativeButton(R.string.negative_button, (dialog, which) -> dialog.cancel())
+                    .setPositiveButton(R.string.OK, (dialog, which) -> {
+                        EditText oldPin = alertView.findViewById(R.id.old_pin);
+                        EditText newPin = alertView.findViewById(R.id.new_pin);
+                        if(oldPin.getText().toString().equals(RepoApplication.getPin())) {
+                            RepoApplication.setDefaultPin(newPin.getText().toString());
+                            dialog.cancel();
+                            Toast.makeText(getContext(), R.string.successPinChanged, Toast.LENGTH_SHORT).show();
+                        } else {
+                            alertFailed.show();
+                        }
+                    })
+                    .create();
+            changePinAlert.show();
         });
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -53,10 +54,16 @@ public class EncryptionWorker extends Worker {
         if (inputData != null) {
             if (inputData.equals(ENCRYPT)) {
                 try {
+                    Thread.sleep(5000);
+                    if(isStopped()) {
+                        application.isLocked = false;
+                        return Result.success();
+                    }
                     encryptDb(file, encrDB, encryptionKey);
                     Log.d(TAG, "encrypted");
+                    application.isLocked = true;
                     return Result.success();
-                } catch (IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
+                } catch (IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | InterruptedException e) {
                     e.printStackTrace();
                 }
             } else if (inputData.equals(DECRYPT)) {
