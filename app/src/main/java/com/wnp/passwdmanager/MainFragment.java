@@ -224,7 +224,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                                 .getSystemService(Context.CLIPBOARD_SERVICE);
                         if (clipboardManager != null) {
                             clipboardManager.setPrimaryClip(clipData);
-                            Toast.makeText(getContext(), "Copied", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), R.string.copied , Toast.LENGTH_SHORT).show();
                         }
                     }
                 }

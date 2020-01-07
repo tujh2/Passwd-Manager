@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(TAG, "onCreate");
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
         if (savedInstanceState == null) {
@@ -45,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
 
     @Override
     protected void onResume() {
-        //Log.d(TAG, WorkManager.getInstance().getWorkInfosByTag(ENCRYPT_WORK_TAG).toString());
         if (RepoApplication.from(getApplicationContext()).isLocked) {
             navigateToFragment(new UnlockFragment(), null);
         } else WorkManager.getInstance().cancelAllWorkByTag(ENCRYPT_WORK_TAG);
@@ -59,14 +57,13 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
 
     @Override
     protected void onDestroy() {
-        if(isFinishing())
+        if (isFinishing())
             RepoApplication.from(getApplicationContext()).getPasswordsRepository().close();
         super.onDestroy();
     }
 
     @Override
     protected void onStop() {
-        Log.d(TAG, "onStop");
         Data data = new Data.Builder()
                 .putString(EncryptionWorker.TYPE, EncryptionWorker.ENCRYPT).build();
         OneTimeWorkRequest encryptRequest = new OneTimeWorkRequest.

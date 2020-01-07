@@ -1,5 +1,8 @@
 package com.wnp.passwdmanager;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -7,7 +10,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +21,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.wnp.passwdmanager.Database.PasswordEntity;
+
+import org.w3c.dom.Text;
 
 import java.util.Objects;
 
@@ -50,7 +58,7 @@ public class PasswordViewFragment extends Fragment {
 
     @Override
     public void onStop() {
-        if(getArguments() != null)
+        if (getArguments() != null)
             getArguments().putSerializable(ITEM, password);
         super.onStop();
     }
@@ -63,8 +71,8 @@ public class PasswordViewFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         passwordsViewModel = new ViewModelProvider(Objects.requireNonNull(getActivity())).get(PasswordsViewModel.class);
-        
-        if(getArguments() != null) {
+
+        if (getArguments() != null) {
             password = (PasswordEntity) getArguments().getSerializable(ITEM);
             setHasOptionsMenu(true);
         }
@@ -76,19 +84,62 @@ public class PasswordViewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Objects.requireNonNull(getActivity()).setTitle(password.getDomain_name());
         TextView tmp = view.findViewById(R.id.username_view);
+        TextView passwordView = view.findViewById(R.id.password_view);
         tmp.setText(password.getUsername());
         tmp = view.findViewById(R.id.url_view);
         tmp.setText(password.getURL());
-        tmp = view.findViewById(R.id.password_view);
-        tmp.setText(password.getPassword());
+        String pass = password.getPassword();
+        String filledString = fillString(pass.length());
+        passwordView.setText(filledString);
+
+        ClipboardManager clipboardManager = (ClipboardManager) getActivity()
+                .getSystemService(Context.CLIPBOARD_SERVICE);
 
         view.findViewById(R.id.edit_button).setOnClickListener(v ->
-                ((MainActivity)getActivity()).navigateToFragment(EditFragment.newInstance(password), "EDIT"));
+                ((MainActivity) getActivity()).navigateToFragment(EditFragment.newInstance(password), "EDIT"));
+        view.findViewById(R.id.copy_username_but).setOnClickListener(v -> {
+            ClipData clipData = ClipData.newPlainText(null, password.getUsername());
+            if (clipboardManager != null) {
+                clipboardManager.setPrimaryClip(clipData);
+                Toast.makeText(getContext(), R.string.copied, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        view.findViewById(R.id.copy_url_but).setOnClickListener(v -> {
+            ClipData clipData = ClipData.newPlainText(null, password.getURL());
+            if (clipboardManager != null) {
+                clipboardManager.setPrimaryClip(clipData);
+                Toast.makeText(getContext(), R.string.copied, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        view.findViewById(R.id.copy_password_but).setOnClickListener(v -> {
+            ClipData clipData = ClipData.newPlainText(null, password.getPassword());
+            if (clipboardManager != null) {
+                clipboardManager.setPrimaryClip(clipData);
+                Toast.makeText(getContext(), R.string.copied, Toast.LENGTH_SHORT).show();
+            }
+        });
+        ToggleButton toggleButton = view.findViewById(R.id.toggle_visibility_button);
+        toggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked) {
+                passwordView.setText(pass);
+            } else {
+                passwordView.setText(filledString);
+            }
+        });
     }
 
     @Override
     public void onDestroyView() {
         Objects.requireNonNull(getActivity()).setTitle(getResources().getString(R.string.app_name));
         super.onDestroyView();
+    }
+
+    private String fillString(int count) {
+        StringBuilder stringBuilder = new StringBuilder();
+        while (stringBuilder.length() != count)
+            stringBuilder.append('*');
+        return stringBuilder.toString();
     }
 }

@@ -36,4 +36,5 @@
     <string name="failedChangePin">Введен неверный текущий пин-код</string>
     <string name="successPinChanged">Пин-код изменен успешно</string>
     <string name="changing_pin">Изменение пин-кода</string>
+    <string name="copied">Скопировано</string>
 </resources>

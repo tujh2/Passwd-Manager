@@ -55,7 +55,7 @@ public class EditFragment extends Fragment {
     public void onStop() {
         if(getArguments() != null)
             getArguments().putSerializable(ITEM, passwordCurrent);
-        else {
+        else if (passwordCurrent != null) {
             Bundle bundle = new Bundle();
             bundle.putSerializable(ITEM, passwordCurrent);
             setArguments(bundle);
