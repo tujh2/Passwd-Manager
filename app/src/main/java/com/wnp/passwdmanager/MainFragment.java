@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -173,6 +174,17 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                         }
                     });
             Log.d(TAG, "ATTACHED TO RECYCLER VIEW");
+        }
+
+        @Override
+        public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+            super.onDetachedFromRecyclerView(recyclerView);
+            Data data = new Data.Builder()
+                    .putString(EncryptionWorker.TYPE, EncryptionWorker.ENCRYPT).build();
+            OneTimeWorkRequest encryptRequest = new OneTimeWorkRequest.
+                    Builder(EncryptionWorker.class)
+                    .setInputData(data).build();
+            WorkManager.getInstance().enqueue(encryptRequest);
         }
 
         private List<PasswordEntity> mData;

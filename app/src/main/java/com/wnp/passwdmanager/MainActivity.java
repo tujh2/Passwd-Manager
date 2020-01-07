@@ -20,6 +20,7 @@ import com.wnp.passwdmanager.Database.EncryptionWorker;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements FragmentNavigator, FragmentManager.OnBackStackChangedListener {
 
@@ -44,7 +45,8 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
 
     @Override
     protected void onResume() {
-        if(RepoApplication.from(getApplicationContext()).isLocked) {
+        //Log.d(TAG, WorkManager.getInstance().getWorkInfosByTag(ENCRYPT_WORK_TAG).toString());
+        if (RepoApplication.from(getApplicationContext()).isLocked) {
             navigateToFragment(new UnlockFragment(), null);
         } else WorkManager.getInstance().cancelAllWorkByTag(ENCRYPT_WORK_TAG);
         super.onResume();
@@ -57,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
 
     @Override
     protected void onDestroy() {
+        if(isFinishing())
+            RepoApplication.from(getApplicationContext()).getPasswordsRepository().close();
         super.onDestroy();
     }
 
@@ -68,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements FragmentNavigator
         OneTimeWorkRequest encryptRequest = new OneTimeWorkRequest.
                 Builder(EncryptionWorker.class)
                 .addTag(ENCRYPT_WORK_TAG)
+                .setInitialDelay(5, TimeUnit.SECONDS)
                 .setInputData(data).build();
         WorkManager.getInstance().enqueue(encryptRequest);
         super.onStop();

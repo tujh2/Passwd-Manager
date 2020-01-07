@@ -67,6 +67,7 @@ public class UnlockFragment extends Fragment {
     private void onSuccessPin() {
         MainActivity activity = (MainActivity) getActivity();
         if (activity != null) {
+            RepoApplication.from(activity.getApplicationContext()).isLocked = false;
             activity.navigateToFragment(new MainFragment(), null);
         }
     }
