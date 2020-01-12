@@ -37,4 +37,5 @@
     <string name="successPinChanged">Пин-код изменен успешно</string>
     <string name="changing_pin">Изменение пин-кода</string>
     <string name="copied">Скопировано</string>
+    <string name="Search">Поиск</string>
 </resources>

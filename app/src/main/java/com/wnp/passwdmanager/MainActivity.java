@@ -5,24 +5,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import com.wnp.passwdmanager.AuthPart.DefaultSettingsFragment;
 import com.wnp.passwdmanager.AuthPart.UnlockFragment;
 import com.wnp.passwdmanager.Database.EncryptionWorker;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity implements FragmentNavigator, FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
 
     private static final String TAG = "MAIN_ACTIVITY";
     private static final String ENCRYPT_WORK_TAG = "ENCRYPT_TAG";

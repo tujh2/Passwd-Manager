@@ -7,12 +7,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.wnp.passwdmanager.FragmentNavigator;
 import com.wnp.passwdmanager.MainActivity;
 import com.wnp.passwdmanager.R;
 import com.wnp.passwdmanager.RepoApplication;
 
-public class AuthActivity extends AppCompatActivity implements FragmentNavigator{
+public class AuthActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

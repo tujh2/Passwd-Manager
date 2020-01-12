@@ -40,4 +40,5 @@
     <string name="successPinChanged">Pin changed successfully</string>
     <string name="changing_pin">Changing pin</string>
     <string name="copied">Copied</string>
+    <string name="Search">Search</string>
 </resources>

@@ -4,18 +4,21 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,8 +43,6 @@ import com.wnp.passwdmanager.Network.SyncWorker;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 
 public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -51,6 +52,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     private final static String TAG = "mainFrag";
     private PasswordsViewModel passwordsViewModel;
     private FloatingActionButton addButton;
+    private SearchView searchView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,6 +83,8 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 activity.navigateToFragment(new UnlockFragment(), null);
                 recyclerView.setAdapter(null);
                 return true;
+            case R.id.search_button:
+                return true;
             default:
                 break;
         }
@@ -90,6 +94,28 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.main_fragment_menu, menu);
+        Activity activity = getActivity();
+        if (activity != null) {
+            SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+            if (searchManager != null) {
+                searchView = (SearchView) menu.findItem(R.id.search_button).getActionView();
+                searchView.setSearchableInfo(searchManager.getSearchableInfo(activity.getComponentName()));
+                searchView.setMaxWidth(Integer.MAX_VALUE);
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        mAdapter.getFilter().filter(query);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        mAdapter.getFilter().filter(newText);
+                        return false;
+                    }
+                });
+            }
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -106,9 +132,18 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         }
         recyclerView.setAdapter(mAdapter);
         passwordsViewModel = new ViewModelProvider(Objects.requireNonNull(getActivity())).get(PasswordsViewModel.class);
-
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                //super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0) {
+                    addButton.hide();
+                } else if (dy < 0) {
+                    addButton.show();
+                }
+            }
+        });
         mSwipeRefreshLayout.setOnRefreshListener(this);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
         MainActivity activity = ((MainActivity) getActivity());
         addButton.setOnClickListener(v ->
@@ -155,7 +190,45 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         });
     }
 
-    class PasswordListDataAdapter extends RecyclerView.Adapter<PasswordListViewHolder> {
+    class PasswordListDataAdapter extends RecyclerView.Adapter<PasswordListViewHolder> implements Filterable {
+        private List<PasswordEntity> mData;
+        private List<PasswordEntity> mDataFiltered;
+
+        PasswordListDataAdapter() {
+            mData = new ArrayList<>();
+            mDataFiltered = mData;
+        }
+
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    String charString = constraint.toString().toLowerCase();
+                    if (charString.isEmpty()) {
+                        mDataFiltered = mData;
+                    } else {
+                        List<PasswordEntity> filteredList = new ArrayList<>();
+                        for (PasswordEntity item : mData) {
+                            if (item.getDomain_name().toLowerCase().contains(charString) || item.getURL().toLowerCase().contains(charString)) {
+                                filteredList.add(item);
+                            }
+                        }
+                        mDataFiltered = filteredList;
+                    }
+                    FilterResults filterResults = new FilterResults();
+                    filterResults.values = mDataFiltered;
+                    return filterResults;
+                }
+
+                @Override
+                @SuppressWarnings(value = "unchecked")
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    mDataFiltered = (ArrayList<PasswordEntity>) results.values;
+                    notifyDataSetChanged();
+                }
+            };
+        }
 
         @Override
         public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -187,11 +260,6 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             WorkManager.getInstance().enqueue(encryptRequest);
         }
 
-        private List<PasswordEntity> mData;
-
-        PasswordListDataAdapter() {
-            mData = new ArrayList<>();
-        }
 
         @NonNull
         @Override
@@ -205,14 +273,14 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 Log.d(TAG, "POSITION" + pos);
                 MainActivity activity = (MainActivity) getActivity();
                 if (activity != null && pos != RecyclerView.NO_POSITION) {
-                    PasswordEntity item = mData.get(pos);
+                    PasswordEntity item = mDataFiltered.get(pos);
                     activity.navigateToFragment(PasswordViewFragment.newInstance(item), "VIEW");
                 }
             });
             view.findViewById(R.id.copy_but).setOnClickListener(v -> {
                 int pos = holder.getAdapterPosition();
                 if (pos != RecyclerView.NO_POSITION) {
-                    PasswordEntity item = mData.get(pos);
+                    PasswordEntity item = mDataFiltered.get(pos);
                     Animator scale = ObjectAnimator.ofPropertyValuesHolder(v,
                             PropertyValuesHolder.ofFloat(View.SCALE_X, 1, 1.5f, 1),
                             PropertyValuesHolder.ofFloat(View.SCALE_Y, 1, 1.5f, 1));
@@ -224,7 +292,7 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                                 .getSystemService(Context.CLIPBOARD_SERVICE);
                         if (clipboardManager != null) {
                             clipboardManager.setPrimaryClip(clipData);
-                            Toast.makeText(getContext(), R.string.copied , Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), R.string.copied, Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -234,19 +302,20 @@ public class MainFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
         @Override
         public void onBindViewHolder(@NonNull PasswordListViewHolder holder, int position) {
-            PasswordEntity item = mData.get(position);
+            PasswordEntity item = mDataFiltered.get(position);
             holder.urlView.setText(item.getURL());
             holder.domainView.setText(item.getDomain_name());
         }
 
         void setData(List<PasswordEntity> data) {
             mData = data;
+            mDataFiltered = mData;
             notifyDataSetChanged();
         }
 
         @Override
         public int getItemCount() {
-            return mData.size();
+            return mDataFiltered.size();
         }
     }
 
